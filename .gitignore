@@ -1,14 +1,23 @@
-/source-html/htmlMatchParser/catchoutput
-/source-html/htmlMatchParser/compile_cpp.bat
-/source-html/htmlMatchParser/concat.cpp
+# Exec
+
 /source-html/htmlMatchParser/concat
 /source-html/htmlMatchParser/output
 /source-html/htmlMatchParser/htmlMatchParser
 /source-html/htmlMatchParser/regex_example
+/source-html/htmlMatchParser/regex_match_example
+/source-html/htmlMatchParser/removecrlf
+
+
+# Text files
+
+/source-html/htmlMatchParser/catchoutput
+/source-html/htmlMatchParser/textfile
+Notes.txt
+
+# Test programs
+
+/source-html/htmlMatchParser/removecrlf.c
 /source-html/htmlMatchParser/regex_example.cpp
 /source-html/htmlMatchParser/regex_match_example.cpp
-/source-html/htmlMatchParser/regex_match_example
-/source-html/htmlMatchParser/removecrlf.c
-/source-html/htmlMatchParser/removecrlf
-/source-html/htmlMatchParser/textfile
-
+/source-html/htmlMatchParser/compile_cpp.bat
+/source-html/htmlMatchParser/concat.cpp
