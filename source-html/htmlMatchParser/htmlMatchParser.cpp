@@ -218,15 +218,19 @@ string getOpponentDivision(ifstream &infile){
    smatch divm;
    regex div_expr("</div>");
 
+   //cout << "1 debugging: size=" << line.length() << " line:\n" << line << endl;
+
    do {
       getline(infile, line2);
       line += line2;   
    }while (!(regex_search(line2, divm, div_expr)));
 
+
+
    //getline(infile, line2);
    //line = line + line2;
-   //cout << "1 debugging: size=" << line.length() << " line:\n" << line << endl;
-   //cout << "2 debugging: size=" << line2.length() << " line:\n" << line2 << endl;
+   //cout << "after 1 debugging: size=" << line.length() << " line:\n" << line << endl;
+   //cout << "after 2 debugging: size=" << line2.length() << " line:\n" << line2 << endl;
    
    //cout << "1 debugging: size=" << line.length() << " line:\n" << line << endl;
 
@@ -243,7 +247,6 @@ string getOpponentDivision(ifstream &infile){
          }
       }
    }
-
    return "";
 }
 
@@ -390,16 +393,118 @@ int getOpponentInfo(ifstream &infile){
    cout << "Raw Points: " << opponent_raw_points << endl;
 }
 
+string removeQuotes(string line){
+   smatch m;
+   regex expr("[^\"]+");
+   if (regex_search(line, m, expr)){
+      for (auto x : m){
+         return (string)x;
+      }
+   }
+}
+
+string getStageName(string line){
+   smatch m;
+   regex expr("\"[^\"]+\"");
+   if (regex_search(line, m, expr)){
+      for (auto x : m){
+         return (string)x;
+      }
+   }
+}
+
+string getStageDiv(ifstream &infile){
+   string line;
+   smatch m;
+   regex expr("<div(.)*class(.)*=(.)*\"(.)*stage_pick");
+   regex end_expr("<div(.)*class(.)*=(.)*\"(.)*character_pick");
+   int stage_num = 1;
+   smatch m2;
+   regex expr3("[^\"]+");
+
+   do {
+      getline(infile, line);
+
+      if (regex_search(line, m, expr)){
+         regex expr2("<div(.)*data-name(.)*=(.)*\"[^\"]+\"");
+         do {
+            getline(infile, line);
+         }while (!(regex_search(line, m, expr2)));
+
+         return line;
+      }else if (regex_search(line, m, end_expr)){
+         return "DONE";
+      }
+   }while (1);
+}
 
 void getStagesPlayed(ifstream &infile){
-   // while(1){
-   //    string line;
-   //    smatch m;
-   //    regex expr("");
+   int game_num = 1;
 
-
-   // }
+   while(1){
+      string stagedivstr = getStageDiv(infile);
+      if (stagedivstr == "DONE") break;
+      else{
+         string quoted = getStageName(stagedivstr);
+         cout << "Game " << game_num++ << ": " << removeQuotes(quoted) << endl;
+      }
+   }
 }
+
+
+
+
+/*
+void getStagesPlayed(ifstream &infile){
+   int stage_num = 1;
+   while(1){
+
+      string line;
+      smatch m;
+      smatch end_m;
+      regex expr("<div(.)*class(.)*=(.)*\"(.)*stage_pick");
+      regex end_expr("<div(.)*class(.)*=(.)*\"(.)*character_pick");
+
+      getline(infile, line);
+      if (regex_search(line, end_m, end_expr)){
+         cout << "stages: BREAKING\n";
+         break;
+      }
+
+      if (regex_search(line, m, expr)){
+         smatch m2;
+         regex expr2("<div(.)*data-name(.)*=(.)*\"[^\"]+\"");
+         do {
+            getline(infile, line);
+         }while (!(regex_search(line, m2, expr2)));
+
+         for (auto x : m2){
+            cout << "Stages x: " << (string)x << endl;
+            smatch m3;
+            regex expr3("\"[^\"]+\"");
+            if (regex_search((string)x, m3, expr3)){
+               for (auto y : m3){
+                  cout << "Stages y: " << (string)y << endl;
+                  smatch m4;
+                  //regex expr4("[^\"]+");
+                  regex expr4("\"[^\"]+\"");
+                  if (regex_search((string)y, m4, expr3)){
+                     for (auto y2 : m4){
+                        // this messes up... am I blowing up the call stack?
+                        cout << "Stages y2: " << (string)y2 << endl;
+                     }
+                  }else{
+                     cout << "not found!!\n";
+                  }
+               }
+            }
+            break;
+         }
+      }
+   }
+   return;
+}
+*/
 
 
 void getGamesFromFile(string filename){
@@ -458,11 +563,15 @@ void getGamesFromFile(string filename){
 
             // get opponent information
             getOpponentInfo(infile);
+
+            cout << "\nStages:\n";
+            getStagesPlayed(infile);
+
             cout << endl << 
             "========================================================="
             << endl << endl;
 
-            getStagesPlayed(infile);
+
          }else{
             cout << "The match was NOT ranked.\n";  
 
@@ -502,6 +611,7 @@ int main(){
    // fails... is this due to windows crs? lol
    //getGamesFromFile("../old-html-with-cr/original-matchdiv.html");
 
+   // works so far
    getGamesFromFile("../html-without-cr/loggedin_match-history-table.html");
 
    //getGamesFromFile("../html-without-cr/original-matchdiv.html");
@@ -524,8 +634,6 @@ line 30: username
    raw points
 
 line 42: (again)
-
-
 
 line 61: stage result:
    stage 1
