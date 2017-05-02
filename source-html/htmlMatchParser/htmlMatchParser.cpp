@@ -11,6 +11,26 @@ void die(string s){
    cerr << s;
    exit(1);
 }
+
+/*
+
+Advance to the next line in 'infile' until the pattern provided in
+'regex_expr' is found. For example, 'regex_expr' can be "[^\"](.)*[a-z]+"
+
+Return the line found, if the pattern is matched.
+Return "" otherwise.
+
+*/
+string scrollUntilFind(string regex_expr, ifstream &infile){
+   string line;
+   smatch m;
+   regex expr(regex_expr);
+   while (getline(infile, line)){
+      if (regex_search(line, m, expr)) return line;
+   }
+   return "";
+}
+
 // get the match id
 int findMatchID(smatch sm){
    smatch numm;
@@ -174,12 +194,16 @@ string getOpponentUsername(string line){
 }
 
 string getOpponentMedal(ifstream &infile){
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*medal_summary(.)*tier_ladder_league_", infile);
+
+   /*
    string line;
    smatch m;
    regex expr("<div(.)*class(.)*=(.)*\"(.)*medal_summary(.)*tier_ladder_league_");
    do {
       getline(infile, line);
    }while (!(regex_search(line, m, expr)));
+   */
 
    smatch m2;
    regex expr2("tier_ladder_league_(.)*[^\"]");
@@ -206,6 +230,10 @@ string getOpponentMedal(ifstream &infile){
 
 
 string getOpponentDivision(ifstream &infile){
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"division(.)*\"(.)*>", infile);
+   string line2;
+
+   /*
    string line;
    string line2;
    smatch m;
@@ -213,6 +241,7 @@ string getOpponentDivision(ifstream &infile){
    do {
       getline(infile, line);
    }while (!(regex_search(line, m, expr)));
+   */
    
    // find the closing div tag
    smatch divm;
@@ -224,7 +253,6 @@ string getOpponentDivision(ifstream &infile){
       getline(infile, line2);
       line += line2;   
    }while (!(regex_search(line2, divm, div_expr)));
-
 
 
    //getline(infile, line2);
@@ -251,6 +279,10 @@ string getOpponentDivision(ifstream &infile){
 }
 
 string getOpponentPoints(ifstream &infile){
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"points(.)*\"(.)*>", infile);
+   string line2;
+
+   /*
    string line;
    string line2;
    smatch m;
@@ -258,6 +290,7 @@ string getOpponentPoints(ifstream &infile){
    do {
       getline(infile, line);
    }while (!(regex_search(line, m, expr)));
+   */
 
    // find the closing div tag
    smatch divm;
@@ -286,12 +319,15 @@ string getOpponentPoints(ifstream &infile){
 }
 
 string getOpponentRawPoints(ifstream &infile){
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*raw_points(.)*\"", infile);
+   /*
    string line;
    smatch m;
    regex expr("<div(.)*class(.)*=(.)*\"(.)*raw_points(.)*\"");
    do {
       getline(infile, line);
    }while (!(regex_search(line, m, expr)));
+   */
 
    //cout << "getOpponentRawPoints line: " << line << endl;
 
@@ -319,6 +355,9 @@ int getOpponentInfo(ifstream &infile){
    int this_person_won = 0;
    int not_friendlies = 0;
 
+   string line = scrollUntilFind("<div(.)*class=(.*)\"(.)*opponent[^s](.*)\"(.*)>", infile);
+
+   /*
    string line;
    smatch m;
    // match an opponent div
@@ -328,6 +367,7 @@ int getOpponentInfo(ifstream &infile){
    do {
       getline(infile, line); // go to the next line until the regex is matched
    }while (!(regex_search(line, m, expr)));
+   */
 
    // expr should've been found by now
    if (line.find("opponent_lost") != string::npos){
@@ -348,6 +388,10 @@ int getOpponentInfo(ifstream &infile){
    }//else cout << "[FRIENDLIES]\n";
 
    // get this opponent's user id
+   
+   // somehow this messes up the (stack?)
+   //line = scrollUntilFind("<a(.)*class=(.)*\"(.)*username(.)*user_id_[0-9]+", infile);
+
    smatch m0;
    regex user_id_expr("<a(.)*class=(.)*\"(.)*username(.)*user_id_[0-9]+");
 
@@ -426,10 +470,13 @@ string getStageDiv(ifstream &infile){
       getline(infile, line);
 
       if (regex_search(line, m, expr)){
+         line = scrollUntilFind("<div(.)*data-name(.)*=(.)*\"[^\"]+\"", infile);
+         /*
          regex expr2("<div(.)*data-name(.)*=(.)*\"[^\"]+\"");
          do {
             getline(infile, line);
          }while (!(regex_search(line, m, expr2)));
+         */
 
          return line;
       }else if (regex_search(line, m, end_expr)){
@@ -452,6 +499,82 @@ void getStagesPlayed(ifstream &infile){
 }
 
 
+/*
+
+return 1 if <div class="feedback_section"> is found
+return 0 if <div class="match_scores"> is found
+
+*/
+int getFeedbackSectionDiv(ifstream &infile){
+   string line;
+   smatch m;
+   regex expr("<div(.)*class(.)*=(.)*\"(.)*feedback_section");
+   regex end_expr("<div(.)*class(.)*=(.)*\"(.)*match_scores");
+
+   do{
+      getline(infile, line);
+      if (regex_search(line, m, expr)) return 1;
+      else if (regex_search(line, m, end_expr)) return 0;
+   }while(1);
+}
+
+/*
+
+return 1 if <h5 class="heading">Personality</h5> is found
+return 0 if <h5 class="heading">Connection</h5> is found
+
+*/
+int getFeedbackType(ifstream &infile){
+   string line;
+   smatch m;
+   regex expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Personality");
+   regex end_expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Connection");
+
+   do{
+      getline(infile, line);
+      if (regex_search(line, m, expr)) return 1;
+      else if (regex_search(line, m, end_expr)) return 0;
+   }while(1);
+}
+
+/*
+
+return the div for personality feedback
+
+*/
+string getPersonalityDiv(ifstream &infile){
+   string line;
+   smatch m;
+   regex expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Personality");
+
+
+}
+
+
+/*
+
+return the div for connection feedback
+
+*/
+string getConnectionDiv(ifstream &infile){
+
+}
+
+
+void getPlayerFeedback(ifstream &infile){
+   while(1){
+      int feedbackdiv = getFeedbackSectionDiv(infile);
+      if (feedbackdiv){
+         if (getFeedbackType(infile) == 1){// personality feedback
+            string personalityDiv = getPersonalityDiv(infile);
+         }else{ // connection feedback
+            string connectionDiv = getConnectionDiv(infile);
+         }
+
+      }else return;
+   }
+
+}
 
 
 /*
@@ -544,6 +667,13 @@ void getGamesFromFile(string filename){
             else if (match_result == 1) cout << "Result: WIN\n";
 
             // get the date of the match
+            /*
+            // somehow this messes up the (stack?)
+            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            line = scrollUntilFind(dateExpr, infile);
+            */
+
+            
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
             regex date_expr(dateExpr);
             smatch sm2;
@@ -551,6 +681,7 @@ void getGamesFromFile(string filename){
             do {
                getline(infile, line); // go to the next line
             }while (!(regex_search(line, sm2, date_expr)));
+            
 
             // date_expr should've been found by now
             string date = getDate(line);
@@ -573,8 +704,13 @@ void getGamesFromFile(string filename){
 
 
          }else{
-            cout << "The match was NOT ranked.\n";  
+            cout << "The match was NOT ranked.\n";
 
+            // for some reason, this works here but not in the above (ranked) case
+            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            line = scrollUntilFind(dateExpr, infile);
+
+            /*
             // get the date of the match
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
             regex date_expr(dateExpr);
@@ -583,6 +719,7 @@ void getGamesFromFile(string filename){
             do {
                getline(infile, line); // go to the next line
             }while (!(regex_search(line, sm2, date_expr)));
+            */
 
             // date_expr should've been found by now
             string date = getDate(line);

@@ -10,6 +10,7 @@
 
 # Text files
 
+/source-html/htmlMatchParser/catchoutput.old
 /source-html/htmlMatchParser/catchoutput
 /source-html/htmlMatchParser/textfile
 Notes.txt
@@ -21,3 +22,4 @@ Notes.txt
 /source-html/htmlMatchParser/regex_match_example.cpp
 /source-html/htmlMatchParser/compile_cpp.bat
 /source-html/htmlMatchParser/concat.cpp
+/source-html/htmlMatchParser/fileread.cpp

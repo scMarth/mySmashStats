@@ -14,3 +14,6 @@ clean:
 
 go:
 	./htmlMatchParser > catchoutput
+
+diff:
+	cmp catchoutput catchoutput.old
