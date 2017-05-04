@@ -537,43 +537,65 @@ int getFeedbackType(ifstream &infile){
    }while(1);
 }
 
+// return string containing the username who submitted the feedback
+string getFeedbackUsername(ifstream &infile){
+   string line = scrollUntilFind("div(.)*<a(.)*>(.)*</a>(.)*<span(.)*votes_text", infile);
+   smatch m;
+   regex expr(">[^>]+</a>");
+   if (regex_search(line, m, expr)){
+      for (auto x : m){
+         regex expr2("[^><]+[^<]");
+         if (regex_search((string)x, m, expr2)){
+            for (auto y : m){
+               return (string)y;
+            }
+         }
+      }
+   }
+   return "";
+}
+
+
+
+
 /*
 
-return the div for personality feedback
+return 1 if feedback is positive
+return 0 if feedback is negative
 
 */
-string getPersonalityDiv(ifstream &infile){
+int isGoodFeedback(ifstream &infile){
    string line;
    smatch m;
-   regex expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Personality");
+   regex p_expr("<i(.)*class(.)*=(.)*\"(.)*positive(.)*</i>");
+   regex n_expr("<i(.)*class(.)*=(.)*\"(.)*negative(.)*</i>");
 
-
+   do{
+      getline(infile, line);
+      if (regex_search(line, m, p_expr)) return 1;
+      else if (regex_search(line, m, n_expr)) return 0;
+   }while(1);
 }
-
-
-/*
-
-return the div for connection feedback
-
-*/
-string getConnectionDiv(ifstream &infile){
-
-}
-
 
 void getPlayerFeedback(ifstream &infile){
    while(1){
       int feedbackdiv = getFeedbackSectionDiv(infile);
+      //cout << "getPlayerFeedback: got the int: " << feedbackdiv << endl;
       if (feedbackdiv){
-         if (getFeedbackType(infile) == 1){// personality feedback
-            string personalityDiv = getPersonalityDiv(infile);
-         }else{ // connection feedback
-            string connectionDiv = getConnectionDiv(infile);
-         }
-
+         int personalityFeedback = getFeedbackType(infile);
+         string username = getFeedbackUsername(infile);
+         int feedbacktype = isGoodFeedback(infile);
+         cout << username << " submitted ";
+         if (personalityFeedback == 1) // personality feedback
+            cout << "personality";
+         else // connection feedback
+            cout << "connection";
+         cout << ": thumbs ";
+         if (feedbacktype == 1) cout << "up";
+         else cout << "down";
+         cout << endl;
       }else return;
    }
-
 }
 
 
@@ -667,13 +689,15 @@ void getGamesFromFile(string filename){
             else if (match_result == 1) cout << "Result: WIN\n";
 
             // get the date of the match
-            /*
-            // somehow this messes up the (stack?)
-            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
-            line = scrollUntilFind(dateExpr, infile);
-            */
 
             
+            // somehow this messes up the (stack?)
+            // restarted comp, different day and all of a sudden this works..
+            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            line = scrollUntilFind(dateExpr, infile);
+            
+
+            /*            
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
             regex date_expr(dateExpr);
             smatch sm2;
@@ -681,7 +705,7 @@ void getGamesFromFile(string filename){
             do {
                getline(infile, line); // go to the next line
             }while (!(regex_search(line, sm2, date_expr)));
-            
+            */
 
             // date_expr should've been found by now
             string date = getDate(line);
@@ -695,8 +719,12 @@ void getGamesFromFile(string filename){
             // get opponent information
             getOpponentInfo(infile);
 
+            // get player feedback
+            getPlayerFeedback(infile);
+
             cout << "\nStages:\n";
             getStagesPlayed(infile);
+
 
             cout << endl << 
             "========================================================="
