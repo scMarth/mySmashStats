@@ -8,7 +8,7 @@
 using namespace std;
 
 void die(string s){
-   cerr << s;
+   cerr << s << endl;
    exit(1);
 }
 
@@ -29,6 +29,37 @@ string scrollUntilFind(string regex_expr, ifstream &infile){
       if (regex_search(line, m, expr)) return line;
    }
    return "";
+}
+
+/*
+
+return the substring of 'line' that matches the expression 'regex_expr'
+
+*/
+string getStringInLineThatMatches(string regex_expr, string line){
+   smatch m;
+   regex expr(regex_expr);
+   if (regex_search(line, m, expr)){
+      for (auto x : m){
+         return (string)x;
+      }
+   }else{
+      cout << "getStringInLineThatMatches: returning null\n";
+      return "";
+   }
+}
+
+/*
+
+return 1 if string 'line' matches the expression 'regex_expr'
+return 0 otherwise
+
+*/
+int stringMatchesExpr(string regex_expr, string line){
+   smatch m;
+   regex expr(regex_expr);
+   if (regex_search(line, m, expr)) return 1;
+   else return 0;
 }
 
 // get the match id
@@ -447,56 +478,11 @@ string removeQuotes(string line){
    }
 }
 
-string getStageName(string line){
-   smatch m;
-   regex expr("\"[^\"]+\"");
-   if (regex_search(line, m, expr)){
-      for (auto x : m){
-         return (string)x;
-      }
-   }
-}
 
-string getStageDiv(ifstream &infile){
-   string line;
-   smatch m;
-   regex expr("<div(.)*class(.)*=(.)*\"(.)*stage_pick");
-   regex end_expr("<div(.)*class(.)*=(.)*\"(.)*character_pick");
-   int stage_num = 1;
-   smatch m2;
-   regex expr3("[^\"]+");
 
-   do {
-      getline(infile, line);
 
-      if (regex_search(line, m, expr)){
-         line = scrollUntilFind("<div(.)*data-name(.)*=(.)*\"[^\"]+\"", infile);
-         /*
-         regex expr2("<div(.)*data-name(.)*=(.)*\"[^\"]+\"");
-         do {
-            getline(infile, line);
-         }while (!(regex_search(line, m, expr2)));
-         */
 
-         return line;
-      }else if (regex_search(line, m, end_expr)){
-         return "DONE";
-      }
-   }while (1);
-}
 
-void getStagesPlayed(ifstream &infile){
-   int game_num = 1;
-
-   while(1){
-      string stagedivstr = getStageDiv(infile);
-      if (stagedivstr == "DONE") break;
-      else{
-         string quoted = getStageName(stagedivstr);
-         cout << "Game " << game_num++ << ": " << removeQuotes(quoted) << endl;
-      }
-   }
-}
 
 
 /*
@@ -651,6 +637,160 @@ void getStagesPlayed(ifstream &infile){
 }
 */
 
+/*
+
+return 1 if character was victorious
+return 0 if character was defeated
+
+*/
+int characterVictorious(string line){
+   smatch m;
+   regex d_expr("defeated");
+   regex v_expr("victorious");
+
+   if (regex_search(line, m, v_expr))
+      return 1;
+   else if (regex_search(line, m, d_expr))
+      return 0;
+   else die("characterVictorious: couldn't find 'victorious' or 'defeated'");
+}
+
+string getCharacterPlayed(string line){
+   /*
+   smatch m;
+   regex expr("title=\"[^\"]+\"");
+
+
+   if (regex_search(line, m, expr)){
+      for (auto x : m){
+         regex expr2("\"[^\"]+\"");
+      }
+   }
+   */
+
+   string character = getStringInLineThatMatches("title=\"[^\"]+\"", line);
+   character = getStringInLineThatMatches("\"[^\"]+\"", character);
+   character = getStringInLineThatMatches("[^\"]+", character);
+   return character;
+}
+
+void getStagesPlayed(ifstream &infile){
+   string line;
+   int divCount = 0;
+   int game_count = 1;
+
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*stage_result(.)*", infile);
+   divCount++;
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*stage_pick(.)*", infile);
+
+
+   while(1){
+      divCount++;
+      line = scrollUntilFind("<div(.)*data-name(.)*=(.)*\"[^\"]+\"", infile);
+      divCount++;
+      string quoted_stage = getStringInLineThatMatches("\"[^\"]+\"", line);
+      string stage = removeQuotes(quoted_stage);
+      cout << "Game " << game_count++ << ": " << stage << endl;
+
+      line = scrollUntilFind("(.)*</div>(.)*", infile);
+      if (stringMatchesExpr("(.)*</div>(.)*</div>(.)*", line))
+         // two closing divs found
+         divCount -= 2;
+      else
+         // one closing div
+         divCount--;
+
+      // get the next line
+      getline(infile, line);
+
+      if (stringMatchesExpr("(.)*</div>(.)*", line)){
+         divCount--;
+         //cout << "-->getStagesPlayed: returning from while loop\n";
+         //cout << "divCount = " << divCount << endl;
+         //cout << "the line:\n\n";
+         //cout << line << endl << endl;
+         if (divCount == 0) return; //closed off all opening div tags with closing div tags
+         else die("getStagesPlayed: number of opening div tags don't match with number of closing div tags");
+      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\"(.)*stage_pick(.)*", line)) continue;
+      else die("getStagesPlayed: unknown expression");
+   }
+}
+
+
+void getPlayerResult(ifstream &infile){
+   string line;
+   int divCount = 0;
+
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*team_result(.)*", infile);
+   divCount++;
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*player_result(.)*", infile);
+   divCount++;
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*character_pick(.)*", infile);
+
+
+   while(1){
+      divCount++;
+      //cout << "-->getPlayerResult: while loop\n";
+      string line2;
+      getline(infile, line2);
+      line += line2;
+      int wasVictorious = characterVictorious(line);
+
+      //line = scrollUntilFind("(.)*character(.)*character_for_game_melee", infile);
+      line = scrollUntilFind("(.)*character(.)*character_for_game_melee(.)*", infile);
+      //cout << "-->getPlayerResult: while loop line:\n" << line << endl << endl;
+      divCount++;
+      string character = getCharacterPlayed(line);
+      cout << character << " (";
+      if (wasVictorious) cout << "VICTORIOUS";
+      else cout << "DEFEATED";
+      cout << ")\n";
+
+      line = scrollUntilFind("(.)*</div>(.)*", infile);
+      if (stringMatchesExpr("(.)*</div>(.)*</div>(.)*", line))
+         // two closing divs found
+         divCount -= 2;
+      else
+         // one closing div
+         divCount--;
+      
+      getline(infile, line); // get the next line
+
+      if (stringMatchesExpr("(.)*</div>(.)*", line)){
+         divCount--;
+
+         getline(infile, line); // get the next line
+         if (stringMatchesExpr("(.)*</div>(.)*", line)){
+            divCount--;
+            //cout << "-->getPlayerResult: returning from while loop\n";
+            //cout << "divCount = " << divCount << endl;
+            //cout << "the line:\n\n";
+            //cout << line << endl << endl;
+            //return;
+            if (divCount == 0) return; //closed off all opening div tags with closing div tags
+            else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
+         }else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
+      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\"(.)*character_pick", line)) continue;
+      else die("getPlayerResult: unknown expression");
+   }
+}
+
+
+
+/*
+void getStagesPlayed(ifstream &infile){
+   int game_num = 1;
+
+   while(1){
+      string stagedivstr = getStageDiv(infile);
+      if (stagedivstr == "DONE") break;
+      else{
+         string quoted = getStageName(stagedivstr);
+         cout << "Game " << game_num++ << ": " << removeQuotes(quoted) << endl;
+      }
+   }
+}
+*/
 
 void getGamesFromFile(string filename){
    ifstream infile(filename);
@@ -725,6 +865,12 @@ void getGamesFromFile(string filename){
             cout << "\nStages:\n";
             getStagesPlayed(infile);
 
+            cout << "\nP1 Characters:\n";
+            getPlayerResult(infile);
+
+            cout << "\nP2 Characters:\n";
+            getPlayerResult(infile);
+
 
             cout << endl << 
             "========================================================="
@@ -776,8 +922,10 @@ int main(){
    // fails... is this due to windows crs? lol
    //getGamesFromFile("../old-html-with-cr/original-matchdiv.html");
 
-   // works so far
+   // works so far (without carriage returns)
    getGamesFromFile("../html-without-cr/loggedin_match-history-table.html");
+
+   //getGamesFromFile("../html-without-cr/character_fail.html");
 
    //getGamesFromFile("../html-without-cr/original-matchdiv.html");
 
