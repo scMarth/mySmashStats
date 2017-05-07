@@ -14,10 +14,12 @@
 /source-html/htmlMatchParser/catchoutput.old
 /source-html/htmlMatchParser/catchoutput
 /source-html/htmlMatchParser/textfile
+/source-html/htmlMatchParser/template.json
 Notes.txt
 
 # Test programs
 
+/source-html/htmlMatchParser/cpp5.4.1.regex_example.cpp
 /source-html/htmlMatchParser/removecrlf.c
 /source-html/htmlMatchParser/regex_example.cpp
 /source-html/htmlMatchParser/regex_match_example.cpp
