@@ -1,5 +1,5 @@
 # Exec
-
+/source-html/a.out
 /source-html/htmlMatchParser/concat
 /source-html/htmlMatchParser/output
 /source-html/htmlMatchParser/htmlMatchParser
@@ -9,7 +9,8 @@
 
 
 # Text files
-
+/source-html/body.txt
+/source-html/head.txt
 /source-html/htmlMatchParser/catchoutput.very.old
 /source-html/htmlMatchParser/catchoutput.old
 /source-html/htmlMatchParser/catchoutput

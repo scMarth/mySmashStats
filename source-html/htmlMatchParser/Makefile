@@ -16,4 +16,4 @@ go:
 	./htmlMatchParser > catchoutput
 
 diff:
-	cmp catchoutput catchoutput.old
+	diff -y catchoutput catchoutput.old

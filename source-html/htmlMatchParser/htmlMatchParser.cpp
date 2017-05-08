@@ -31,6 +31,20 @@ string scrollUntilFind(string regex_expr, ifstream &infile){
    return "";
 }
 
+
+string scrollAndAppendUntilFind(string regex_expr, ifstream &infile){
+   string ret = "";
+   string line;
+   smatch m;
+   regex expr(regex_expr);
+   while (getline(infile, line)){
+      ret += line;
+      if (regex_search(ret, m, expr)) return ret;
+   }
+   return "";
+}
+
+
 /*
 
 return the substring of 'line' that matches the expression 'regex_expr'
@@ -148,9 +162,9 @@ int isRanked(string line){
 }
 
 string getDate(string line){
-   string date = getSubstringThatMatches("title=\"(.*)\"", line);
-   date = getSubstringThatMatches("\"(.*)\"", date);
-   return getSubstringThatMatches("[^\"]+", date);
+   string date = getSubstringThatMatches("title=\'(.*)\'", line);
+   date = getSubstringThatMatches("\'(.*)\'", date);
+   return getSubstringThatMatches("[^\']+", date);
 }
 
 
@@ -173,15 +187,15 @@ string getOpponentUsername(string line){
 }
 
 string getOpponentMedal(ifstream &infile){
-   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*medal_summary(.)*tier_ladder_league_", infile);
-   line = getSubstringThatMatches("tier_ladder_league_(.)*[^\"]", line);
-   line = getSubstringThatMatches("[^_]+\">", line);
-   return getSubstringThatMatches("[^(\">)]+", line);
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*medal_summary(.)*tier_ladder_league_", infile);
+   line = getSubstringThatMatches("tier_ladder_league_(.)*[^\']", line);
+   line = getSubstringThatMatches("[^_]+\'>", line);
+   return getSubstringThatMatches("[^(\'>)]+", line);
 }
 
 
 string getOpponentDivision(ifstream &infile){
-   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"division(.)*\"(.)*>", infile);
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'division(.)*\'(.)*>", infile);
    string line2;
    
    // find the closing div tag
@@ -198,7 +212,7 @@ string getOpponentDivision(ifstream &infile){
 }
 
 string getOpponentPoints(ifstream &infile){
-   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"points(.)*\"(.)*>", infile);
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'points(.)*\'(.)*>", infile);
    string line2;
 
    // find the closing div tag
@@ -215,9 +229,9 @@ string getOpponentPoints(ifstream &infile){
 }
 
 string getOpponentRawPoints(ifstream &infile){
-   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*raw_points(.)*\"", infile);
-   string s = getSubstringThatMatches("title(.)*=(.)*\"[0-9]+(.)*[0-9]*", line);
-   return getSubstringThatMatches("[0-9][^\"]*", s);
+   string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*raw_points(.)*\'", infile);
+   string s = getSubstringThatMatches("title(.)*=(.)*\'[0-9]+(.)*[0-9]*", line);
+   return getSubstringThatMatches("[0-9][^\']*", s);
 }
 
 // get opponent information
@@ -225,7 +239,7 @@ int getOpponentInfo(ifstream &infile){
    int this_person_won = 0;
    int not_friendlies = 0;
 
-   string line = scrollUntilFind("<div(.)*class=(.*)\"(.)*opponent[^s](.*)\"(.*)>", infile);
+   string line = scrollUntilFind("<div(.)*class=(.*)\'(.)*opponent[^s](.*)\'(.*)>", infile);
 
    // expr should've been found by now
    if (line.find("opponent_lost") != string::npos){
@@ -247,7 +261,7 @@ int getOpponentInfo(ifstream &infile){
 
    // get this opponent's user id
    smatch m0;
-   regex user_id_expr("<a(.)*class=(.)*\"(.)*username(.)*user_id_[0-9]+");
+   regex user_id_expr("<a(.)*class=(.)*\'(.)*username(.)*user_id_[0-9]+");
 
    do {
       getline(infile, line);
@@ -292,7 +306,7 @@ int getOpponentInfo(ifstream &infile){
 }
 
 string removeQuotes(string line){
-   return getSubstringThatMatches("[^\"]+", line);
+   return getSubstringThatMatches("[^\']+", line);
 }
 
 /*
@@ -302,15 +316,23 @@ return 0 if <div class="match_scores"> is found
 
 */
 int getFeedbackSectionDiv(ifstream &infile){
+   //int count = 0;
    string line;
    smatch m;
-   regex expr("<div(.)*class(.)*=(.)*\"(.)*feedback_section");
-   regex end_expr("<div(.)*class(.)*=(.)*\"(.)*match_scores");
+   //regex expr("<div(.)*class(.)*=(.)*\'(.)*feedback_section");
+   //regex expr("<div(.)*\'(.)*feedback_section");
+   regex expr("(.)*feedback_section(.)*");
+   regex end_expr("<div(.)*class(.)*=(.)*\'(.)*match_scores");
 
    do{
       getline(infile, line);
+      //count++;
       if (regex_search(line, m, expr)) return 1;
-      else if (regex_search(line, m, end_expr)) return 0;
+      else if (regex_search(line, m, end_expr)){
+         //cout << "count: " << count << endl;
+         //cout << "found matchscores!\n";
+         return 0;
+      }
    }while(1);
 }
 
@@ -323,8 +345,8 @@ return 0 if <h5 class="heading">Connection</h5> is found
 int getFeedbackType(ifstream &infile){
    string line;
    smatch m;
-   regex expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Personality");
-   regex end_expr("<h5(.)*class(.)*=(.)*\"(.)*heading(.)*Connection");
+   regex expr("<h5(.)*class(.)*=(.)*\'(.)*heading(.)*Personality");
+   regex end_expr("<h5(.)*class(.)*=(.)*\'(.)*heading(.)*Connection");
 
    do{
       getline(infile, line);
@@ -335,7 +357,8 @@ int getFeedbackType(ifstream &infile){
 
 // return string containing the username who submitted the feedback
 string getFeedbackUsername(ifstream &infile){
-   string line = scrollUntilFind("div(.)*<a(.)*>(.)*</a>(.)*<span(.)*votes_text", infile);
+   //string line = scrollUntilFind("div(.)*<a(.)*>(.)*</a>(.)*<span(.)*votes_text", infile);
+   string line = scrollAndAppendUntilFind("div(.)*<a(.)*>(.)*</a>(.)*<span(.)*votes_text", infile);
    line = getSubstringThatMatches(">[^>]+</a>", line);
    return getSubstringThatMatches("[^><]+[^<]", line);
 }
@@ -350,8 +373,11 @@ return 0 if feedback is negative
 int isGoodFeedback(ifstream &infile){
    string line;
    smatch m;
-   regex p_expr("<i(.)*class(.)*=(.)*\"(.)*positive(.)*</i>");
-   regex n_expr("<i(.)*class(.)*=(.)*\"(.)*negative(.)*</i>");
+   //regex p_expr("<i(.)*class(.)*=(.)*\'(.)*positive(.)*</i>");
+   //regex n_expr("<i(.)*class(.)*=(.)*\'(.)*negative(.)*</i>");
+
+   regex p_expr("<i(.)*positive(.)*");
+   regex n_expr("<i(.)*negative(.)*");
 
    do{
       getline(infile, line);
@@ -365,6 +391,7 @@ void getPlayerFeedback(ifstream &infile){
       int feedbackdiv = getFeedbackSectionDiv(infile);
       //cout << "getPlayerFeedback: got the int: " << feedbackdiv << endl;
       if (feedbackdiv){
+         //cout << "feedbackdiv 1\n";
          int personalityFeedback = getFeedbackType(infile);
          string username = getFeedbackUsername(infile);
          int feedbacktype = isGoodFeedback(infile);
@@ -400,10 +427,17 @@ int characterVictorious(string line){
 }
 
 string getCharacterPlayed(string line){
-   string character = getSubstringThatMatches("title=\"[^\"]+\"", line);
-   character = getSubstringThatMatches("\"[^\"]+\"", character);
-   character = getSubstringThatMatches("[^\"]+", character);
+   string character = getSubstringThatMatches("title=\'[^\']+\'", line);
+   character = getSubstringThatMatches("\'[^\']+\'", character);
+   character = getSubstringThatMatches("[^\']+", character);
    return character;
+}
+
+
+string fixYoshis(string str){
+   string s = getSubstringThatMatches("Yoshi&#039;s Story", str);
+   if (s == "") return str;
+   else return "Yoshi's Story";
 }
 
 void getStagesPlayed(ifstream &infile){
@@ -411,17 +445,20 @@ void getStagesPlayed(ifstream &infile){
    int divCount = 0;
    int game_count = 1;
 
-   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*stage_result(.)*", infile);
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*stage_result(.)*", infile);
    divCount++;
-   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*stage_pick(.)*", infile);
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*stage_pick(.)*", infile);
 
 
    while(1){
       divCount++;
-      line = scrollUntilFind("<div(.)*data-name(.)*=(.)*\"[^\"]+\"", infile);
+      //line = scrollUntilFind("<div(.)*data-name(.)*=(.)*\'[^\']+\'", infile);
+      line = scrollUntilFind("(.)*data-name(.)*=(.)*\'[^\']+\'", infile);
       divCount++;
-      string quoted_stage = getSubstringThatMatches("\"[^\"]+\"", line);
+      string quoted_stage = getSubstringThatMatches("\'[^\']+\'", line);
       string stage = removeQuotes(quoted_stage);
+      stage = fixYoshis(stage);
+
       cout << "Game " << game_count++ << ": " << stage << endl;
 
       line = scrollUntilFind("(.)*</div>(.)*", infile);
@@ -443,7 +480,7 @@ void getStagesPlayed(ifstream &infile){
          //cout << line << endl << endl;
          if (divCount == 0) return; //closed off all opening div tags with closing div tags
          else die("getStagesPlayed: number of opening div tags don't match with number of closing div tags");
-      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\"(.)*stage_pick(.)*", line)) continue;
+      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\'(.)*stage_pick(.)*", line)) continue;
       else die("getStagesPlayed: unknown expression");
    }
 }
@@ -453,11 +490,11 @@ void getPlayerResult(ifstream &infile){
    string line;
    int divCount = 0;
 
-   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*team_result(.)*", infile);
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*team_result(.)*", infile);
    divCount++;
-   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*player_result(.)*", infile);
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*player_result(.)*", infile);
    divCount++;
-   line = scrollUntilFind("<div(.)*class(.)*=(.)*\"(.)*character_pick(.)*", infile);
+   line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*character_pick(.)*", infile);
 
 
    while(1){
@@ -472,6 +509,10 @@ void getPlayerResult(ifstream &infile){
       line = scrollUntilFind("(.)*character(.)*character_for_game_melee(.)*", infile);
       //cout << "-->getPlayerResult: while loop line:\n" << line << endl << endl;
       divCount++;
+      
+      getline(infile, line2);
+      line += line2;
+
       string character = getCharacterPlayed(line);
       cout << character << " (";
       if (wasVictorious) cout << "VICTORIOUS";
@@ -502,7 +543,7 @@ void getPlayerResult(ifstream &infile){
             if (divCount == 0) return; //closed off all opening div tags with closing div tags
             else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
          }else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
-      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\"(.)*character_pick", line)) continue;
+      }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\'(.)*character_pick", line)) continue;
       else die("getPlayerResult: unknown expression");
    }
 }
@@ -515,9 +556,10 @@ void getGamesFromFile(string filename){
 
       // find match div
       smatch sm;
-      regex expr("<(.)*div(.)*data-match-id=\"[0-9]+\"(.)*match-information(.)*>");
+      //regex expr("<(.)*div(.)*data-match-id=\"[0-9]+\"(.)*match-information(.)*>");
+      regex expr("data-match-id(.)*>");
       if (regex_search(line, sm, expr)){ // matchdiv found
-
+         //cout << "matchdiv found!" << endl;
          // get the match ID
          int match_id = findMatchID(sm);
          if (match_id == -1) die("Match ID wasn't found.\n");
@@ -549,8 +591,16 @@ void getGamesFromFile(string filename){
             
             // somehow this messes up the (stack?)
             // restarted comp, different day and all of a sudden this works..
-            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            //string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            //line = scrollUntilFind(dateExpr, infile);
+            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id);
+
+
             line = scrollUntilFind(dateExpr, infile);
+
+            string line2;
+            getline(infile, line2);
+            line += line2;
 
             // date_expr should've been found by now
             string date = getDate(line);
@@ -586,8 +636,19 @@ void getGamesFromFile(string filename){
             cout << "The match was NOT ranked.\n";
 
             // for some reason, this works here but not in the above (ranked) case
-            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            //string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id) + "(.)*title=\"";
+            string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id);
+
+
             line = scrollUntilFind(dateExpr, infile);
+
+            string line2;
+            getline(infile, line2);
+            line += line2;
+            //cout << "line: " << line << endl;
+
+            //line = scrollAndAppendUntilFind(dateExpr, infile);
+            //cout << "line--> " << line << endl;
 
             // date_expr should've been found by now
             string date = getDate(line);
@@ -617,11 +678,12 @@ int main(){
    //getGamesFromFile("../old-html-with-cr/original-matchdiv.html");
 
    // works so far (without carriage returns)
-   getGamesFromFile("../html-without-cr/loggedin_match-history-table.html");
+   //getGamesFromFile("../html-without-cr/loggedin_match-history-table.html");
+   getGamesFromFile("../html-without-cr/head.html");
+   //getGamesFromFile("../head.txt");
 
    //getGamesFromFile("../html-without-cr/character_fail.html");
 
    //getGamesFromFile("../html-without-cr/original-matchdiv.html");
-
    return 0;
 }
