@@ -26,7 +26,7 @@ testregex:
 	$(CC) -o testRegex testRegexStuff.cpp
 
 clean:
-	rm $(exec)
+	- rm $(exec) *.o *.gch
 
 go:
 	./htmlMatchParser > catchoutput
