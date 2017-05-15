@@ -1,29 +1,39 @@
 # Exec
-/source-html/a.out
-/source-html/htmlMatchParser/concat
-/source-html/htmlMatchParser/output
-/source-html/htmlMatchParser/htmlMatchParser
-/source-html/htmlMatchParser/regex_example
-/source-html/htmlMatchParser/regex_match_example
-/source-html/htmlMatchParser/removecrlf
+/source/concat
+/source/htmlMatchParser
+/source/regex_example
+/source/regex_match_example
+/source/removecrlf
+/source/testRegex
+/source/getUpdatedHistoryHTML
 
+# .o, .gch
+/source/*.o
+/source/*.gch
 
 # Text files
-/source-html/body.txt
-/source-html/head.txt
-/source-html/htmlMatchParser/catchoutput.very.old
-/source-html/htmlMatchParser/catchoutput.old
-/source-html/htmlMatchParser/catchoutput
-/source-html/htmlMatchParser/textfile
-/source-html/htmlMatchParser/template.json
+
+/source/catchoutput.very.old
+/source/catchoutput.old
+/source/catchoutput
+/source/textfile
+/source/template.json
+
+# HTML files
+/html/updatedHistories/cleanedtest.html
+/html/updatedHistories/out
+/html/updatedHistories/RAW.html
+/html/updatedHistories/test.html
+/source/testRegexStuff.html
+
 Notes.txt
 
 # Test programs
-
-/source-html/htmlMatchParser/cpp5.4.1.regex_example.cpp
-/source-html/htmlMatchParser/removecrlf.c
-/source-html/htmlMatchParser/regex_example.cpp
-/source-html/htmlMatchParser/regex_match_example.cpp
-/source-html/htmlMatchParser/compile_cpp.bat
-/source-html/htmlMatchParser/concat.cpp
-/source-html/htmlMatchParser/fileread.cpp
+/source/cpp5.4.1.regex_example.cpp
+/source/removecrlf.c
+/source/regex_example.cpp
+/source/regex_match_example.cpp
+/source/compile_cpp.bat
+/source/concat.cpp
+/source/fileread.cpp
+/source/testRegexStuff.cpp
