@@ -129,9 +129,15 @@ string getOpponentMedal(ifstream &infile){
 
 string getOpponentDivision(ifstream &infile){
    string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*division(.)*", infile);
+   //cout << "getOpponentDivision: " << line << endl << endl;
    line = scrollAndAppendUntilFind("<div(.)*class(.)*=(.)*\'division(.)*\'(.)*>(.)*</div>", infile, line);
+   //cout << "2 getOpponentDivision: " << line << endl << endl;
    line = getSubstringThatMatches(">(.)*</", line);
-   return getSubstringThatMatches("[^> ]+[^ </]", line);
+   //cout << "3 getOpponentDivision: " << line << endl << endl;
+   //line = getSubstringThatMatches("[^> ]+[^ </]", line);
+   line = getSubstringThatMatches("[^ <>/]+", line);
+   //cout << "4 getOpponentDivision: " << line << endl << endl;
+   return line;
 }
 
 string getOpponentPoints(ifstream &infile){
@@ -355,7 +361,7 @@ string getCharacterPlayed(string line){
 
 
 string fixYoshis(string str){
-   string s = getSubstringThatMatches("Yoshi&#039;s Story", str);
+   string s = getSubstringThatMatches("Yosh(.)*Story", str);
    if (s == "") return str;
    else return "Yoshi's Story";
 }
