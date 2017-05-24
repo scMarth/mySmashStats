@@ -1,0 +1,289 @@
+*, html{
+    margin: 16px;
+    padding: 0;
+    font-family: sans-serif;
+    color: #d0d0d0;
+    /*font-size: 20px;*/
+}
+
+html, body{
+   height: 100%;
+   background-color: #121212;
+   color: white;
+}
+
+/* Match Div Styles */
+.match-div{
+   border: 1px solid #d0d0d0;
+   /*background-color:red;*/
+   padding-top: 20px;
+   padding-bottom: 20px;
+}
+
+/* Opponent Info Div Styles */
+div.opponents-container{
+   margin-left: 20px;
+}
+
+div.opponent-info-div{
+   padding: 10px;
+   border: 1px solid #d0d0d0;
+   display:inline-block;
+   text-align: center;
+   color: white;
+   font-weight: bold;
+}
+
+div.opponent-misc-info{
+   font-weight: normal;
+   text-align: left;
+   font-size: 0.8em;
+}
+
+span.username, span.division{
+   font-size: 20px;
+}
+
+/* Games Div Styles */
+div.games-div{
+   border: 1px solid #d0d0d0;
+   display: inline-block;
+}
+
+div.p1chars-div, div.p2chars-div, div.stages-div{
+   display: block;
+}
+
+div.p1chars-div, div.p2chars-div{
+   height: 52px;
+}
+
+div.stages-div{
+   height: 64px;
+}
+
+div.stage-img-div{
+   display: inline-block;
+}
+
+div.char-img-div{
+   position: relative;
+   display: inline-block;
+   height: 54px;
+   width: 64px;
+   padding: 1px;
+   border: 1px solid #d0d0d0;
+   text-align: center;
+}
+
+div.tint-div{
+   position:absolute;
+   height: 52px;
+   width: 62px;
+   background-color: rgba(0, 0, 0, 0.70);
+   top: 0;
+   left: 0;
+   display: inline-block;
+}
+
+
+
+/* Medal Images */
+div.medal-bronze, div.medal-silver, div.medal-gold, div.medal-platinum, 
+div.medal-master, div.medal-grandsmasher, div.medal-unranked{
+   height: 64px;
+   width: 64px;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: cover;
+   display: inline-block;
+   text-align: center;
+}
+
+div.medal-bronze{
+   background-image: url("../images/medals/bronze.png");
+}
+
+div.medal-silver{
+   background-image: url("../images/medals/silver.png");
+}
+
+div.medal-gold{
+   background-image: url("../images/medals/gold.png");
+}
+
+div.medal-platinum{
+   background-image: url("../images/medals/platinum.png");
+}
+
+div.medal-master{
+   background-image: url("../images/medals/master.png");
+}
+
+div.medal-grandsmasher{
+   background-image: url("../images/medals/grandsmasher.png");
+}
+
+div.medal-unranked{
+   background-image: url("../images/medals/unranked.png");
+}
+
+/* Stage Images */
+div.stage-BF, div.stage-FD, div.stage-PS, div.stage-YS, div.stage-FoD, div.stage-DL{
+   height: 64px;
+   width: 64px;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: cover;
+   padding: 1px;
+   border: 1px solid #d0d0d0;
+}
+
+div.stage-BF{
+   background-image: url("../images/stages/BF.png");
+}
+
+div.stage-FD{
+   background-image: url("../images/stages/FD.png");
+}
+
+div.stage-PS{
+   background-image: url("../images/stages/PS.png");
+}
+
+div.stage-YS{
+   background-image: url("../images/stages/YS.png");
+}
+
+div.stage-FoD{
+   background-image: url("../images/stages/FoD.png");
+}
+
+div.stage-DL{
+   background-image: url("../images/stages/DL.png");
+}
+/* Character Images */
+div.char-Bowser, div.char-Falcon, div.char-DK, div.char-Doc, div.char-Falco,
+div.char-Fox, div.char-Ganondorf, div.char-ICs, div.char-Jiggs, div.char-Kirby,
+div.char-Link, div.char-Luigi, div.char-Mario, div.char-Marth, div.char-Mewtwo,
+div.char-GW, div.char-Ness, div.char-Peach, div.char-Pika, div.char-Pichu,
+div.char-Random, div.char-Roy, div.char-Samus, div.char-Sheik, div.char-Yoshi,
+div.char-YLink, div.char-Zelda{
+   height: 50px;
+   width: 50px;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: cover;
+   display: inline-block;
+}
+
+div.char-Bowser{
+   background-image: url("../images/characters/icons/Bowser.png");
+}
+
+div.char-Falcon{
+   background-image: url("../images/characters/icons/Falcon.png");
+}
+
+div.char-DK{
+   background-image: url("../images/characters/icons/DK.png");
+}
+
+div.char-Doc{
+   background-image: url("../images/characters/icons/Doc.png");
+}
+
+div.char-Falco{
+   background-image: url("../images/characters/icons/Falco.png");
+}
+
+div.char-Fox{
+   background-image: url("../images/characters/icons/Fox.png");
+}
+
+div.char-Ganondorf{
+   background-image: url("../images/characters/icons/Ganondorf.png");
+}
+
+div.char-ICs{
+   background-image: url("../images/characters/icons/ICs.png");
+}
+
+div.char-Jiggs{
+   background-image: url("../images/characters/icons/Jiggs.png");
+}
+
+div.char-Kirby{
+   background-image: url("../images/characters/icons/Kirby.png");
+}
+
+div.char-Link{
+   background-image: url("../images/characters/icons/Link.png");
+}
+
+div.char-Luigi{
+   background-image: url("../images/characters/icons/Luigi.png");
+}
+
+div.char-Mario{
+   background-image: url("../images/characters/icons/Mario.png");
+}
+
+div.char-Marth{
+   /*background-image: url("../images/characters/icons/Marth.png");*/
+   background-image: url("../images/characters/icons/Marth.png");
+   border-image-repeat: stretch;
+   background-size: 100% 100%;
+}
+
+div.char-Mewtwo{
+   background-image: url("../images/characters/icons/Mewtwo.png");
+}
+
+div.char-GW{
+   background-image: url("../images/characters/icons/GW.png");
+}
+
+div.char-Ness{
+   background-image: url("../images/characters/icons/Ness.png");
+}
+
+div.char-Peach{
+   background-image: url("../images/characters/icons/Peach.png");
+}
+
+div.char-Pika{
+   background-image: url("../images/characters/icons/Pika.png");
+}
+
+div.char-Pichu{
+   background-image: url("../images/characters/icons/Pichu.png");
+}
+
+div.char-Random{
+   background-image: url("../images/characters/icons/Random.png");
+}
+
+div.char-Roy{
+   background-image: url("../images/characters/icons/Roy.png");
+}
+
+div.char-Samus{
+   background-image: url("../images/characters/icons/Samus.png");
+}
+
+div.char-Sheik{
+   background-image: url("../images/characters/icons/Sheik.png");
+}
+
+div.char-Yoshi{
+   background-image: url("../images/characters/icons/Yoshi.png");
+}
+
+div.char-YLink{
+   background-image: url("../images/characters/icons/YLink.png");
+}
+
+div.char-Zelda{
+   background-image: url("../images/characters/icons/Zelda.png");
+}

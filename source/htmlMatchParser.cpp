@@ -2,11 +2,20 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-
+// ./source
 #include "errorStuff.h"
 #include "regexStuff.h"
+// rapidjson
+#include "../include/rapidjson/writer.h"
+#include "../include/rapidjson/stringbuffer.h"
 
 using namespace std;
+using namespace rapidjson;
+
+
+// Global Var
+StringBuffer s;
+Writer<StringBuffer> writer(s);
 
 // get the match id
 int findMatchID(smatch sm){
@@ -153,7 +162,7 @@ string getOpponentRawPoints(ifstream &infile){
 }
 
 // get opponent information
-int getOpponentInfo(ifstream &infile){
+int getOpponentInfo(ifstream &infile, string opponent_num){
    int this_person_won = 0;
    int not_friendlies = 0;
 
@@ -173,9 +182,19 @@ int getOpponentInfo(ifstream &infile){
    cout << endl;
    if (not_friendlies == 1){
       //cout << "[RANKED MATCH]\n";
-      if (this_person_won == 1) cout << "WINNER:\n";
-      else cout << "LOSER:\n";      
-   }//else cout << "[FRIENDLIES]\n";
+      if (this_person_won == 1){
+         cout << "WINNER:\n";
+         writer.Key("winner");
+      }else{
+         cout << "LOSER:\n";
+         writer.Key("loser");
+      }
+   }else{
+      string keyString = "opponent" + opponent_num;
+      writer.Key(keyString.c_str());
+   }
+
+   writer.StartObject();
 
    // get this opponent's user id
    line = scrollAndAppendUntilFind("<a(.)*class=(.)*\'(.)*username(.)*user_id_[0-9]+(.)*>(.)*</a>", infile, line);
@@ -183,20 +202,32 @@ int getOpponentInfo(ifstream &infile){
    if (opponent_user_id == -1) die("getOpponentInfo: opponent_user_id = -1\n");
    cout << "User ID:" << opponent_user_id << "\n";
 
+   writer.Key("user_id");
+   writer.Int(opponent_user_id);
+
    // get this opponent's username
    string opponent_username = getOpponentUsername(line);
    if (opponent_username == "") die("getOpponentUsername failed\n");
    else cout << "Username: " << opponent_username << endl;
+
+   writer.Key("username");
+   writer.String(opponent_username.c_str());
 
    // get this opponent's medal
    string oppponent_medal = getOpponentMedal(infile);
    if (oppponent_medal == "") die("getOpponentMedal failed\n");
    else cout << "Medal: " << oppponent_medal << endl;
 
+   writer.Key("medal");
+   writer.String(oppponent_medal.c_str());
+
    // get this opponent's division
    string opponent_division = getOpponentDivision(infile);
    if (opponent_division == "") die("getOpponentDivision failed\n");
    else cout << "Division: " << opponent_division << endl;
+
+   writer.Key("division");
+   writer.String(opponent_division.c_str());
 
    // get this opponent's points
    int opponent_unranked = 0;
@@ -208,12 +239,29 @@ int getOpponentInfo(ifstream &infile){
       stringstream convert(opponent_points);
       convert >> opp_points_num;
    }
-   if (opponent_unranked) cout << "Points: (UNRANKED)\n";
-   else cout << "Points: " << opp_points_num << endl;
+
+   writer.Key("points");
+
+   if (opponent_unranked){
+      cout << "Points: (UNRANKED)\n";
+      writer.String("(UNRANKED)");
+   }
+   else{
+      cout << "Points: " << opp_points_num << endl;
+      writer.String(to_string(opp_points_num).c_str());
+   }
 
    // get this opponents raw points
    string opponent_raw_points = getOpponentRawPoints(infile);
    cout << "Raw Points: " << opponent_raw_points << endl;
+
+   writer.Key("raw_points");
+   writer.String(opponent_raw_points.c_str());
+
+   writer.Key("player");
+   writer.String(opponent_num.c_str());
+
+   writer.EndObject();
 }
 
 string removeQuotes(string line){
@@ -294,6 +342,7 @@ int isGoodFeedback(ifstream &infile){
    }while(1);
 }
 
+//template <template <class> class Writer, class StringBuffer>
 void getPlayerFeedback(ifstream &infile){
    string line = scrollUntilFind("(.)*</div>(.)*", infile);
    line = scrollUntilFind("(.)*</div>(.)*", infile);
@@ -304,18 +353,38 @@ void getPlayerFeedback(ifstream &infile){
          string username = getFeedbackUsername(infile, "");
          int feedbacktype = isGoodFeedback(infile);
          cout << endl << username << " submitted ";
-         if (personalityFeedback == 1) // personality feedback
+         if (personalityFeedback == 1){ // personality feedback
             cout << "personality";
-         else // connection feedback
+            writer.Key("personality_feedback");
+         }else{ // connection feedback
             cout << "connection";
+            writer.Key("connection_feedback");
+         }
+         writer.StartArray();
+         writer.StartArray();
+
+         writer.String(username.c_str());
+
          cout << ": thumbs ";
-         if (feedbacktype == 1) cout << "up";
-         else cout << "down";
+         if (feedbacktype == 1){
+            writer.Int(1);
+            cout << "up";
+         }else{
+            writer.Int(0);
+            cout << "down";
+         }
          cout << endl;
+         
+         writer.EndArray();
+
 
          getline(infile, line);
-         if (stringMatchesExpr("</div>(.)*", line)) continue;
+         if (stringMatchesExpr("</div>(.)*", line)){
+            writer.EndArray();
+            continue;
+         }
          else {
+            writer.StartArray();
             username = getFeedbackUsername(infile, line);
             int feedbacktype = isGoodFeedback(infile);
             cout << username << " submitted ";
@@ -324,10 +393,22 @@ void getPlayerFeedback(ifstream &infile){
             else // connection feedback
                cout << "connection";
             cout << ": thumbs ";
-            if (feedbacktype == 1) cout << "up";
-            else cout << "down";
-            cout << endl;            
+
+            writer.String(username.c_str());
+
+            if (feedbacktype == 1){
+               cout << "up";
+               writer.Int(1);
+            }else{
+               cout << "down";
+               writer.Int(0);
+            }
+            cout << endl;
+
+            writer.EndArray();
          }
+
+         writer.EndArray();
       }else return;
    }
 }
@@ -375,6 +456,8 @@ void getStagesPlayed(ifstream &infile){
    divCount++;
    line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*stage_pick(.)*", infile);
 
+   writer.Key("stages");
+   writer.StartArray();
 
    while(1){
       divCount++;
@@ -385,6 +468,7 @@ void getStagesPlayed(ifstream &infile){
       stage = fixYoshis(stage);
 
       cout << "Game " << game_count++ << ": " << stage << endl;
+      writer.String(stage.c_str());
 
       line = scrollUntilFind("(.)*</div>(.)*", infile); //close data-name div
       divCount--;
@@ -394,15 +478,17 @@ void getStagesPlayed(ifstream &infile){
 
       if (stringMatchesExpr("(.)*</div>(.)*", line)){
          divCount--;
-         if (divCount == 0) return; //closed off all opening div tags with closing div tags
-         else die("getStagesPlayed: number of opening div tags don't match with number of closing div tags");
+         if (divCount == 0){
+            writer.EndArray();
+            return; //closed off all opening div tags with closing div tags
+         }else die("getStagesPlayed: number of opening div tags don't match with number of closing div tags");
       }if (stringMatchesExpr("<div(.)*class(.)*=(.)*\'(.)*stage_pick(.)*", line)) continue;
       else die("getStagesPlayed: unknown expression");
    }
 }
 
 
-void getPlayerResult(ifstream &infile){
+void getPlayerResult(ifstream &infile, string player_num){
    string line;
    int divCount = 0;
 
@@ -412,6 +498,10 @@ void getPlayerResult(ifstream &infile){
    divCount++;
    line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*character_pick(.)*", infile);
 
+   string keyString = "p" + player_num + "_characters";
+   writer.Key(keyString.c_str());
+   writer.StartArray();
+
    while(1){
       divCount++;
       int wasVictorious = characterVictorious(line);
@@ -420,10 +510,18 @@ void getPlayerResult(ifstream &infile){
       scrollUntilFind("(.)*</div>(.)*", infile); // close character_pick
       divCount--;
 
+      writer.StartArray();
+      writer.String(character.c_str());
       cout << character << " (";
-      if (wasVictorious) cout << "VICTORIOUS";
-      else cout << "DEFEATED";
+      if (wasVictorious){
+         writer.Int(1);
+         cout << "VICTORIOUS";  
+      }else{
+         writer.Int(0);
+         cout << "DEFEATED";
+      } 
       cout << ")\n";
+      writer.EndArray();
 
       getline(infile, line); // get the next line
 
@@ -433,15 +531,17 @@ void getPlayerResult(ifstream &infile){
          getline(infile, line); // get the next line
          if (stringMatchesExpr("(.)*</div>(.)*", line)){ // close team_result
             divCount--;
-            if (divCount == 0) return; //closed off all opening div tags with closing div tags
-            else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
+            if (divCount == 0){
+               writer.EndArray();
+               return; //closed off all opening div tags with closing div tags
+            }else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
          }else die("getPlayerResult: number of opening div tags don't match with number of closing div tags");
       }else if (stringMatchesExpr("<div(.)*class(.)*=(.)*\'(.)*character_pick", line)) continue;
       else die("getPlayerResult: unknown expression");
    }
 }
 
-
+//template <template <class> class Writer, class StringBuffer>
 void getGamesFromFile(string filename){
    ifstream infile(filename);
 
@@ -458,24 +558,40 @@ void getGamesFromFile(string filename){
          getline(infile, nextline);
          line += nextline;
 
+
+
          // get the match ID
          int match_id = findMatchID(sm);
          if (match_id == -1) die("Match ID wasn't found.\n");
          else cout << "The match id is: " << match_id << "\n";
+
+         writer.StartObject();         
+         writer.Key("match_id");
+         writer.Int(match_id);
 
          // get the season ID
          int season_id = findSeasonID(line);
          if (season_id == -1) die("Season ID wasn't found.\n");
          else cout << "The season id is: " << season_id << endl;
 
+         writer.Key("season_id");
+         writer.Int(season_id);
+
          // get the ladder number
          int ladder_num = findLadderNum(line);
          if (ladder_num == -1) die("Ladder number wasn't found.\n");
          else cout << "The ladder number is: " << ladder_num << endl;
 
+         writer.Key("ladder_num");
+         writer.Int(ladder_num);
+
          // find out if the match is ranked or not
          int ranked = isRanked(line);
          if (ranked){
+
+            writer.Key("match_type");
+            writer.String("RANKED");
+
             // cout << "The match was ranked.\n";
 
             // find the result of the mass (win or loss)
@@ -483,6 +599,9 @@ void getGamesFromFile(string filename){
             if (match_result == -1) die("Match result wasn't found.\n");
             else if (match_result == 0) cout << "Result: LOSS\n";
             else if (match_result == 1) cout << "Result: WIN\n";
+
+            writer.Key("result");
+            writer.String("WIN");
 
             // get the date of the match
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id);
@@ -497,13 +616,16 @@ void getGamesFromFile(string filename){
             string date = getDate(line);
             cout << "Date: " << date << endl;
 
+            writer.Key("date");
+            writer.String(date.c_str());            
+
             cout << "\n[RANKED MATCH]\n";
 
             // get opponent information
-            getOpponentInfo(infile);
+            getOpponentInfo(infile, "1");
 
             // get opponent information
-            getOpponentInfo(infile);
+            getOpponentInfo(infile, "2");
 
             // get player feedback
             getPlayerFeedback(infile);
@@ -512,18 +634,24 @@ void getGamesFromFile(string filename){
             getStagesPlayed(infile);
 
             cout << "\nP1 Characters:\n";
-            getPlayerResult(infile);
+            getPlayerResult(infile, "1");
 
             cout << "\nP2 Characters:\n";
-            getPlayerResult(infile);
+            getPlayerResult(infile, "2");
 
 
             cout << endl << 
             "========================================================="
             << endl << endl;
 
-
+            //cout << "signal 1" << endl;
+            //cout << s.GetString() << endl;
+            writer.EndObject();
+            //cout << "signal 2" << endl;
          }else{
+            writer.Key("match_type");
+            writer.String("UNRANKED");
+
             cout << "The match was NOT ranked.\n";
 
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id);
@@ -538,13 +666,16 @@ void getGamesFromFile(string filename){
             string date = getDate(line);
             cout << "Date: " << date << endl;
 
+            writer.Key("date");
+            writer.String(date.c_str());
+
             cout << "\n[FRIENDLIES]\n";
 
             // get opponent information
-            getOpponentInfo(infile);
+            getOpponentInfo(infile, "1");
 
             // get opponent information
-            getOpponentInfo(infile);
+            getOpponentInfo(infile, "2");
 
             // get player feedback
             getPlayerFeedback(infile);
@@ -552,6 +683,8 @@ void getGamesFromFile(string filename){
             cout << endl << 
             "========================================================="
             << endl << endl;
+
+            writer.EndObject();
          }
       }
    }
@@ -560,18 +693,23 @@ void getGamesFromFile(string filename){
 
 int main(){
 
-   // fails... is this due to windows crs? lol
-   //getGamesFromFile("../old-html-with-cr/original-matchdiv.html");
-
-   // works so far (without carriage returns)
-   //getGamesFromFile("../html-without-cr/loggedin_match-history-table.html");
-   //getGamesFromFile("../html-without-cr/head.html");
+   //writer.StartObject();
+   writer.StartArray();
 
    getGamesFromFile("../html/updatedHistories/updatedHistory.html");
-   //getGamesFromFile("../head.txt");
 
-   //getGamesFromFile("../html-without-cr/character_fail.html");
+   writer.EndArray();
+   //writer.EndObject();
 
-   //getGamesFromFile("../html-without-cr/original-matchdiv.html");
+   //cout << "JSON DATA:" << endl;
+   //cout << s.GetString() << endl;
+
+   // Write JSON to file
+   ofstream jsonDataFile;
+   //jsonDataFile.open("../json/match-history/hist.json");
+   jsonDataFile.open("../dist/js/history.js");
+   jsonDataFile << "var HistoryJSON = " << s.GetString() << endl;
+   jsonDataFile.close();
+
    return 0;
 }
