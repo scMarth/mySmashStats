@@ -1,4 +1,6 @@
-var statsDiv = $('#stats-div')[0];
+// var statsDiv = $('#stats-div')[0];
+var matchesDiv = $('#matches-div')[0];
+
 
 $(window).on("load", function(){
    main();
@@ -106,6 +108,80 @@ function renderHTML(data){
    console.log(data);
 
    for (i=0; i<data.length; i++){
+      htmlString += "<div class='match-div clearfix'>";
+
+      /* Left Column */
+      htmlString += "<div class='left-column'>";
+      if (data[i].match_type == "RANKED"){ // Ranked Matches
+         htmlString += "<div class='opponents-container'>";
+
+         htmlString += "<div class='opponent-info-div'>";
+         if (data[i].winner.player == "1"){
+            htmlString += getUserDetails(data[i].winner);
+         }else{
+            htmlString += getUserDetails(data[i].loser);
+         }
+         htmlString += "</div>";
+
+         htmlString += "<div class='opponent-info-div'>";
+         if (data[i].winner.player == "1"){
+            htmlString += getUserDetails(data[i].loser);  
+         }else{
+            htmlString += getUserDetails(data[i].winner);
+         }
+         htmlString += "</div>";
+         htmlString += "</div>";
+      }else{ // Friendlies
+         htmlString += "<div class='opponents-container'>";
+
+         htmlString += "<div class='opponent-info-div'>";
+         htmlString += getUserDetails(data[i].opponent1);
+         htmlString += "</div>";
+
+         htmlString += "<div class='opponent-info-div'>";
+         htmlString += getUserDetails(data[i].opponent2);
+         htmlString += "</div>";
+
+         htmlString += "</div>";     
+      }
+      htmlString += "</div>"; /* End Left Column */
+
+      /* Right Column */
+      htmlString += "<div class='right-column'>";
+      htmlString += "<span>" + "Match ID: " + data[i].match_id + "</span>" + "<br>";
+      htmlString += "<span>" + "Season ID: " + data[i].season_id + "</span>" + "<br>";
+      htmlString += "<span>" + "Ladder ID: " + data[i].ladder_num + "</span>" + "<br>";
+      htmlString += "<span>" + "Match Type: " + data[i].match_type + "</span>" + "<br>";
+      htmlString += "<span>" + "Date: " + data[i].date + "</span>" + "<br>";
+
+      if (data[i].match_type == "RANKED"){ // Ranked Matches
+         // Games
+         htmlString += "<div class='games-div'>";
+         htmlString += "<div class='stages-div'>";
+         for (j=0; j<data[i].stages.length; j++){
+            htmlString += getStageImgString(data[i].stages[j]);
+         }
+         htmlString += "</div>";
+
+         htmlString += "<div class='p1chars-div'>";
+         for (j=0; j<data[i].p1_characters.length; j++){
+            htmlString += getCharImgString(data[i].p1_characters[j]);
+         }
+         htmlString += "</div>";
+
+         htmlString += "<div class='p2chars-div'>";
+         for (j=0; j<data[i].p2_characters.length; j++){
+            htmlString += getCharImgString(data[i].p2_characters[j]);
+         }
+         htmlString += "</div>";
+
+         htmlString += "</div>";
+      }
+      htmlString += "</div>"; /* End Right Column */
+
+      htmlString += "</div>";
+
+      /*
       htmlString += "<div class='match-div'>";
       htmlString += "<span>" + "Match ID: " + data[i].match_id + "</span>" + "<br>";
       htmlString += "<span>" + "Season ID: " + data[i].season_id + "</span>" + "<br>";
@@ -132,6 +208,7 @@ function renderHTML(data){
          }
          htmlString += "</div>";
          htmlString += "<br>";
+         // Games
          htmlString += "<div class='games-div'>";
          htmlString += "<div class='stages-div'>";
          for (j=0; j<data[i].stages.length; j++){
@@ -153,21 +230,26 @@ function renderHTML(data){
 
          htmlString += "</div>";
 
-
-
          htmlString += "</div>";
       }else{ // Unranked Matches
+         htmlString += "<div class='opponents-container'>";
 
+         htmlString += "<div class='opponent-info-div'>";
+         htmlString += getUserDetails(data[i].opponent1);
+         htmlString += "</div>";
+
+         htmlString += "<div class='opponent-info-div'>";
+         htmlString += getUserDetails(data[i].opponent2);
+         htmlString += "</div>";
+
+         htmlString += "</div>";         
       }
 
       htmlString += "</div>";
-
-
-
-
+      */
    }
 
-   statsDiv.insertAdjacentHTML('beforeend', htmlString);
+   matchesDiv.insertAdjacentHTML('beforeend', htmlString);
 }
 
 
