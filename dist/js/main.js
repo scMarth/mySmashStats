@@ -1,5 +1,37 @@
-// var statsDiv = $('#stats-div')[0];
 var matchesDiv = $('#matches-div')[0];
+var statsObject = {};
+
+// Show / Hide Matches Button
+var matchesBtn = $('#matches-btn')[0];
+var matchesBtnState = 1;
+matchesBtn.addEventListener("click", function(){
+   if (matchesBtnState == 0){
+      $('#matches-div').removeClass('hidden');
+      matchesBtnState = 1;
+      matchesBtn.innerHTML = "Hide Matches";
+   }else{
+      $('#matches-div').addClass('hidden');
+      matchesBtnState = 0;
+      matchesBtn.innerHTML = "Show Matches";
+   }
+   console.log(matchesBtnState);
+});
+
+// Show / Hide Stats Button
+var statsBtn = $('#stats-btn')[0];
+var statsBtnState = 1;
+statsBtn.addEventListener("click", function(){
+   if (statsBtnState == 0){
+      $('#stats-div').removeClass('hidden');
+      statsBtnState = 1;
+      statsBtn.innerHTML = "Hide Stats";
+   }else{
+      $('#stats-div').addClass('hidden');
+      statsBtnState = 0;
+      statsBtn.innerHTML = "Show Stats";
+   }
+});
+
 
 
 $(window).on("load", function(){
@@ -105,7 +137,7 @@ function getUserDetails(player){
 function renderHTML(data){
    var htmlString = "";
 
-   console.log(data);
+   //console.log(data);
 
    for (i=0; i<data.length; i++){
       htmlString += "<div class='match-div clearfix'>";
@@ -116,7 +148,7 @@ function renderHTML(data){
          htmlString += "<div class='opponents-container'>";
 
          htmlString += "<div class='opponent-info-div'>";
-         if (data[i].winner.player == "1"){
+         if (data[i].winner.player == "1"){ // you won
             htmlString += getUserDetails(data[i].winner);
          }else{
             htmlString += getUserDetails(data[i].loser);
@@ -142,7 +174,7 @@ function renderHTML(data){
          htmlString += getUserDetails(data[i].opponent2);
          htmlString += "</div>";
 
-         htmlString += "</div>";     
+         htmlString += "</div>";
       }
       htmlString += "</div>"; /* End Left Column */
 
@@ -180,79 +212,96 @@ function renderHTML(data){
       htmlString += "</div>"; /* End Right Column */
 
       htmlString += "</div>";
-
-      /*
-      htmlString += "<div class='match-div'>";
-      htmlString += "<span>" + "Match ID: " + data[i].match_id + "</span>" + "<br>";
-      htmlString += "<span>" + "Season ID: " + data[i].season_id + "</span>" + "<br>";
-      htmlString += "<span>" + "Ladder ID: " + data[i].ladder_num + "</span>" + "<br>";
-      htmlString += "<span>" + "Match Type: " + data[i].match_type + "</span>" + "<br>";
-      htmlString += "<span>" + "Date: " + data[i].date + "</span>" + "<br>";
-
-      if (data[i].match_type == "RANKED"){ // Ranked Matches
-         htmlString += "<div class='opponents-container'>";
-
-         htmlString += "<div class='opponent-info-div'>";
-         if (data[i].winner.player == "1"){
-            htmlString += getUserDetails(data[i].winner);
-         }else{
-            htmlString += getUserDetails(data[i].loser);
-         }
-         htmlString += "</div>";
-
-         htmlString += "<div class='opponent-info-div'>";
-         if (data[i].winner.player == "1"){
-            htmlString += getUserDetails(data[i].loser);  
-         }else{
-            htmlString += getUserDetails(data[i].winner);
-         }
-         htmlString += "</div>";
-         htmlString += "<br>";
-         // Games
-         htmlString += "<div class='games-div'>";
-         htmlString += "<div class='stages-div'>";
-         for (j=0; j<data[i].stages.length; j++){
-            htmlString += getStageImgString(data[i].stages[j]);
-         }
-         htmlString += "</div>";
-
-         htmlString += "<div class='p1chars-div'>";
-         for (j=0; j<data[i].p1_characters.length; j++){
-            htmlString += getCharImgString(data[i].p1_characters[j]);
-         }
-         htmlString += "</div>";
-
-         htmlString += "<div class='p2chars-div'>";
-         for (j=0; j<data[i].p2_characters.length; j++){
-            htmlString += getCharImgString(data[i].p2_characters[j]);
-         }
-         htmlString += "</div>";
-
-         htmlString += "</div>";
-
-         htmlString += "</div>";
-      }else{ // Unranked Matches
-         htmlString += "<div class='opponents-container'>";
-
-         htmlString += "<div class='opponent-info-div'>";
-         htmlString += getUserDetails(data[i].opponent1);
-         htmlString += "</div>";
-
-         htmlString += "<div class='opponent-info-div'>";
-         htmlString += getUserDetails(data[i].opponent2);
-         htmlString += "</div>";
-
-         htmlString += "</div>";         
-      }
-
-      htmlString += "</div>";
-      */
    }
 
    matchesDiv.insertAdjacentHTML('beforeend', htmlString);
 }
 
 
+
+function getStageShorthand(stageStr){
+   switch (stageStr){
+      case "Battlefield": return "BF";
+      case "Final Destination": return "FD";
+      case "Pokemon Stadium": return "PS";
+      case "Yoshi's Story": return "YS";
+      case "Fountain of Dreams": return "FoD";
+      case "Dream Land": return "DL";
+      default: return "";
+   }
+}
+
+function insertIntoStatsObject(yourCharacter, opponentCharacter, opponentMedal, opponentDivision, stage, youWon){
+   var matchup = yourCharacter + " vs. " + opponentCharacter;
+
+   if (!(statsObject.hasOwnProperty(matchup))){ //matchup not found
+      statsObject[matchup] = new matchupStatInit();
+   }
+
+   if (youWon){
+      statsObject[matchup].wins["total"]++;
+      statsObject[matchup].stages[getStageShorthand(stage)].wins[opponentMedal][opponentDivision]++;
+   }else{
+      statsObject[matchup].losses["total"]++;
+      statsObject[matchup].stages[getStageShorthand(stage)].losses[opponentMedal][opponentDivision]++;
+   }
+
+}
+
+function getStatsFromJSON(data){
+   for (i=0; i<data.length; i++){
+      if (data[i].match_type != "RANKED") continue; // skip friendlies
+
+      var yourMedal = "";
+      var opponentMedal = "";
+      var youWon = false;
+      var yourDivision = "";
+      var opponentDivision = "";
+      var yourCharacter = "";
+      var stage = "";
+      var opponentCharacter = "";
+
+      var you;
+      var opponent;
+
+      if (data[i].winner.player == "1"){ // you won
+         you = data[i].winner;
+         opponent = data[i].loser;
+      }else{
+         you = data[i].loser;
+         opponent = data[i].winner;
+      }
+
+      yourMedal = you.medal;
+      opponentMedal = opponent.medal;
+
+      yourDivision = you.division;
+      opponentDivision = opponent.division;
+
+      // iterate through games
+      for (j=0; j<data[i].stages.length; j++){
+         yourCharacter = data[i].p1_characters[j][0];
+         opponentCharacter = data[i].p2_characters[j][0];
+         stage = data[i].stages[j];
+         if (data[i].p1_characters[j][1] == 1) youWon = true;
+         else youWon = false;
+
+         insertIntoStatsObject(yourCharacter, opponentCharacter, opponentMedal, opponentDivision, stage, youWon);
+      }
+   }
+}
+
+function renderStats(statsObject){
+   for (var matchup in statsObject){
+      if (statsObject.hasOwnProperty(matchup)){
+         console.log("matchup object:", statsObject[matchup]);
+      }
+   }
+}
+
 function main(){
    renderHTML(HistoryJSON);
+   getStatsFromJSON(HistoryJSON);
+   console.log("this is the statsObject:", statsObject);
+   renderStats(statsObject);
 }

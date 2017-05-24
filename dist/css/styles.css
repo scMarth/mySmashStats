@@ -11,15 +11,32 @@ html, body{
    background-color: #121212;
 }
 
-h1{
+header h1{
    font-size: 20px;
    font-weight: bold;
    margin: 20px;
    color: white;
+   text-align: center;
 }
 
 div#matches-div{
    margin: 20px;
+}
+
+/* Hidden Elements */
+.hidden{
+   display: none;
+}
+
+/* Show / Hide Buttons */
+div#stats-btn, div#matches-btn{
+   margin: 20px;
+   border: 1px solid #d0d0d0;
+   width: 200px;
+   padding: 10px;
+   text-align: center;
+   font-size: 20px;
+   font-weight: bold;
 }
 
 /* Match Div Styles */
