@@ -108,7 +108,7 @@ div.char-img-div{
    text-align: center;
 }
 
-div.tint-div{
+div.char-tint-div{
    position:absolute;
    height: 50px;
    width: 62px;
@@ -334,3 +334,150 @@ div.char-YLink{
 div.char-Zelda{
    background-image: url("../images/characters/icons/Zelda.png");
 }
+
+
+/* Stats Div Styles */
+div#stats-div{
+   margin: 20px;
+}
+
+/* Matchup Stats Div Styles */
+.matchup-stats-div{
+   border: 1px solid #d0d0d0;
+   padding-top: 20px;
+   padding-bottom: 20px;
+   padding: 20px;   
+}
+
+table.stats-table{
+   margin-left: 25%;
+   margin-right: 25%;
+   width: 50%;
+   border-collapse: collapse;
+}
+
+table.stats-table td, table.stats-table th, table.stats-table tr{
+   border: 1px solid #d0d0d0;
+   text-align: center;
+}
+
+table.stats-table td, table.stats-table th{
+   padding: 5px;
+}
+
+table.stats-table th{
+   font-weight: bold;
+}
+
+table.stats-table th:nth-child(1),
+table.stats-table td:nth-child(1){
+   text-align: right;
+}
+
+/* Add Highlighting to Stats Tables */
+table.stats-table tr.highlight:hover{
+   background-color: #333333;
+}
+
+
+/* Small Images in the Stats Tables */
+div.medal-bronze-small, div.medal-silver-small, div.medal-gold-small, 
+div.medal-platinum-small, div.medal-master-small, 
+div.medal-grandsmasher-small, div.medal-unranked-small{
+   height: 25px;
+   width: 25px;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: cover;
+   display: inline-block;
+   text-align: center;
+}
+
+div.medal-bronze-small{
+   background-image: url("../images/medals/bronze.png");
+}
+
+div.medal-silver-small{
+   background-image: url("../images/medals/silver.png");
+}
+
+div.medal-gold-small{
+   background-image: url("../images/medals/gold.png");
+}
+
+div.medal-platinum-small{
+   background-image: url("../images/medals/platinum.png");
+}
+
+div.medal-master-small{
+   background-image: url("../images/medals/master.png");
+}
+
+div.medal-grandsmasher-small{
+   background-image: url("../images/medals/grandsmasher.png");
+}
+
+div.medal-unranked-small{
+   background-image: url("../images/medals/unranked.png");
+}
+
+/* Character Portraits in Stats Divs */
+div#stats-div div.char-Bowser, div#stats-div div.char-Falcon,
+div#stats-div div.char-DK, div#stats-div div.char-Doc,
+div#stats-div div.char-Falco, div#stats-div div.char-Fox,
+div#stats-div div.char-Ganondorf, div#stats-div div.char-ICs,
+div#stats-div div.char-Jiggs, div#stats-div div.char-Kirby,
+div#stats-div div.char-Link, div#stats-div div.char-Luigi,
+div#stats-div div.char-Mario, div#stats-div div.char-Marth,
+div#stats-div div.char-Mewtwo, div#stats-div div.char-GW,
+div#stats-div div.char-Ness, div#stats-div div.char-Peach,
+div#stats-div div.char-Pika, div#stats-div div.char-Pichu,
+div#stats-div div.char-Random, div#stats-div div.char-Roy,
+div#stats-div div.char-Samus, div#stats-div div.char-Sheik,
+div#stats-div div.char-Yoshi, div#stats-div div.char-YLink,
+div#stats-div div.char-Zelda{
+   border: 1px solid #d0d0d0;
+}
+
+div.matchup-stats-div-header{
+   text-align: center;
+}
+
+div.matchup-stats-stages-div{
+   text-align: center;
+   margin-top: 50px;
+   margin-left: 25%;
+   margin-right: 25%;
+}
+
+/* Stage Pictures in Stats Divs */
+div.matchup-stats-stages-div div.stage-BF,
+div.matchup-stats-stages-div div.stage-FD,
+div.matchup-stats-stages-div div.stage-PS,
+div.matchup-stats-stages-div div.stage-YS,
+div.matchup-stats-stages-div div.stage-FoD,
+div.matchup-stats-stages-div div.stage-DL{
+   height: 64px;
+   width: 64px;
+   background-position: center;
+   background-repeat: no-repeat;
+   background-size: cover;
+   border: 1px solid #d0d0d0;
+   margin: 10px;
+}
+
+div.stats-stage-btn{
+   display: inline-block;
+   text-align: justify;
+   position: relative;
+}
+
+.stage-tint-div{
+   height: 62px;
+   width: 62px;
+   background-color: rgba(0, 0, 0, 0.70);
+   position:absolute;
+   top: 11px;
+   left: 11px;
+}
+
