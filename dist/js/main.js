@@ -34,8 +34,6 @@ statsBtn.addEventListener("click", function(){
    }
 });
 
-
-
 $(window).on("load", function(){
    main();
 });
@@ -115,7 +113,6 @@ function getCharImgStringFromArray(dataArray){
    return output;
 
 }
-
 
 function getUserDetails(player){
    output = "";
@@ -463,7 +460,7 @@ function renderStats(statsObject){
             + "</div>";
 
          outHTML += "<div class='matchup-stats-stages-div'>";
-         // 'name = ' + matchup  value = BF ....?????       .......?????
+         // add stage toggle buttons
          outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
             + "' name='" + matchup + "' value='BF'>" + "<div class='stage-BF'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
@@ -511,6 +508,7 @@ function renderStats(statsObject){
          console.log("FoD chart: ", sc_FoD);
          console.log("PS chart: ", sc_PS);
 
+         // let chart be the sum of all the stage charts
          var chart = new statsChart();
          chart = addStatsChart(sc_FD, sc_BF);
          chart = addStatsChart(chart, sc_YS);
@@ -518,9 +516,9 @@ function renderStats(statsObject){
          chart = addStatsChart(chart, sc_FoD);
          chart = addStatsChart(chart, sc_DL);
 
+         // store the totals chart and the individual stage charts
          var charts = [];
          charts.push(chart, sc_BF, sc_FD, sc_FoD, sc_YS, sc_PS, sc_DL);
-
          statsCharts[matchup] = charts;
 
          outHTML += getTableStringFromStatsChart(chart);

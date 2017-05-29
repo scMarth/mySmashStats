@@ -55,8 +55,6 @@ function populateStatsChart(stageObject, statsChart){
    }
 }
 
-
-
 // Subtracts scB's values from scA and returns the result
 // i.e. returns scA - scB
 function subtractStatsChart(scA, scB){
