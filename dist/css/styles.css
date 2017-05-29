@@ -481,3 +481,9 @@ div.stats-stage-btn{
    left: 11px;
 }
 
+/* Stage Button Hover Effects */
+.stage-tint-div:hover,
+div.stats-stage-btn div.stage-BF:hover, div.stats-stage-btn div.stage-FD:hover, div.stats-stage-btn div.stage-PS:hover, div.stats-stage-btn div.stage-YS:hover, div.stats-stage-btn div.stage-FoD:hover, div.stats-stage-btn div.stage-DL:hover{
+   border: 2px solid #d0d0d0;
+   box-shadow: 0px 0px 50px #d0d0d0;
+}

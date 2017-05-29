@@ -60,7 +60,25 @@ function populateStatsChart(stageObject, statsChart){
 // Subtracts scB's values from scA and returns the result
 // i.e. returns scA - scB
 function subtractStatsChart(scA, scB){
-   return;
+   var result = new statsChart();
+
+   result.wins['total'] = scA.wins['total'] - scB.wins['total']; // need parseInt?
+   result.losses['total'] = scA.losses['total'] - scB.losses['total'];
+   result.total_games.total += result.wins['total'] + result.losses['total'];
+   if (result.total_games.total == 0) result.winrates.total = 0;
+   else result.winrates.total = (result.wins['total']/result.total_games.total)*100;
+
+   for (i=0; i<medals.length; i++){
+      result.wins[medals[i]] = scA.wins[medals[i]] - scB.wins[medals[i]];
+      result.losses[medals[i]] = scA.losses[medals[i]] - scB.losses[medals[i]];
+      result.total_games[medals[i]] = result.losses[medals[i]] + result.wins[medals[i]];
+      if (result.total_games[medals[i]] == 0)
+         result.winrates[medals[i]] = 0;
+      else
+         result.winrates[medals[i]] = (result.wins[medals[i]]/result.total_games[medals[i]])*100;
+   }
+
+   return result;
 }
 
 // Adds scA's and scB's values and returns the result
@@ -78,11 +96,10 @@ function addStatsChart(scA, scB){
       result.wins[medals[i]] = scA.wins[medals[i]] + scB.wins[medals[i]];
       result.losses[medals[i]] = scA.losses[medals[i]] + scB.losses[medals[i]];
       result.total_games[medals[i]] = result.losses[medals[i]] + result.wins[medals[i]];
-      if (result.total_games[medals[i]] == 0){
+      if (result.total_games[medals[i]] == 0)
          result.winrates[medals[i]] = 0;
-      }else{
+      else
          result.winrates[medals[i]] = (result.wins[medals[i]]/result.total_games[medals[i]])*100;
-      }
       
    }
 

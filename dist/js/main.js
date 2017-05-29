@@ -1,6 +1,7 @@
 var matchesDiv = $('#matches-div')[0];
 var statsDiv = $('#stats-div')[0];
 var statsObject = {};
+var statsCharts = {};
 
 // Show / Hide Matches Button
 var matchesBtn = $('#matches-btn')[0];
@@ -383,6 +384,19 @@ function getRightCharacterFromMatchup(matchupStr){
 }
 
 
+
+function getStatsChartsIndexForStage(stage){
+   switch (stage){
+      case "BF": return 1;
+      case "FD": return 2;
+      case "FoD": return 3;
+      case "YS": return 4;
+      case "PS": return 5;
+      case "DL": return 6;
+      default: return -1;
+   }
+}
+
 var stageTintDivCounter = 0;
 var stageTintDivStates = [];
 
@@ -390,32 +404,45 @@ function addStageTintDivToggles(){
    for (i=0; i<stageTintDivCounter; i++){
       stageTintDivStates.push(0);
 
-      var btnid = "#stage-tint-div"+String(i);
-
+      var btnid = "#stats-stage-btn"+String(i);
       var btn = $(btnid)[0];
-
-      btnid = "#stats-stage-btn"+String(i);
-      btn = $(btnid)[0];
       btn.addEventListener("click", function(){;
          var num = String(this.id).substring(15);
-         
+         var matchup = $(this).attr('name');
+         var stage = $(this).attr('value');
+         var totals_charts = statsCharts[matchup][0];
+         var ind = getStatsChartsIndexForStage(stage);
+         var stage_chart = statsCharts[matchup][ind]
+         console.log("matchup ", matchup);
+         console.log("stage ", stage);
+         console.log("totals ", totals_charts);
+         console.log("stage chart ", stage_chart);
+         var matchupStatsDiv = $(".matchup-stats-div").filter("[value|='"+matchup+"']")[0];
+
          if (stageTintDivStates[num] == 1){
             //console.log("case 1", this);
             var tmp = "#stage-tint-div"+String(num);
             $(tmp).addClass('hidden');
             stageTintDivStates[num] = 0;
+            var newTotals = addStatsChart(totals_charts, stage_chart);
+            //console.log("debug: ", $(this).children().last());
+            //console.log("debug: ", $(".matchup-stats-div[value]='"+matchup+"'"));
+            //console.log("debug: ", $(".matchup-stats-div").filter("[value|='"+matchup+"']").children().last());
+            //console.log("debug: ", $(".matchup-stats-div").filter("[value|='"+matchup+"']").children().last().remove());
          }else{
             //console.log("case 2", this);
             var tmp = "#stage-tint-div"+String(num);
             $(tmp).removeClass('hidden');
             stageTintDivStates[num] = 1;
+            var newTotals = subtractStatsChart(totals_charts, stage_chart);
          }
+         statsCharts[matchup][0] = newTotals;
+         var appendStr = getTableStringFromStatsChart(newTotals);
+         $(".matchup-stats-div").filter("[value|='"+matchup+"']").children().last().remove()            
+         matchupStatsDiv.insertAdjacentHTML('beforeend', appendStr);
 
       });
    }
-
-
-
 }
 
 
@@ -426,7 +453,7 @@ function renderStats(statsObject){
    for (var matchup in statsObject){
       if (statsObject.hasOwnProperty(matchup)){
 
-         outHTML += "<div class='matchup-stats-div'>";
+         outHTML += "<div class='matchup-stats-div' value='" + matchup + "'>";
          console.log("matchup object:", statsObject[matchup]);
 
          outHTML += "<div class='matchup-stats-div-header'>"
@@ -436,22 +463,29 @@ function renderStats(statsObject){
             + "</div>";
 
          outHTML += "<div class='matchup-stats-stages-div'>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-BF'></div>"
+         // 'name = ' + matchup  value = BF ....?????       .......?????
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='BF'>" + "<div class='stage-BF'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-FD'></div>"
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='FD'>" + "<div class='stage-FD'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-FoD'></div>"
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='FoD'>" + "<div class='stage-FoD'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-YS'></div>"
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='YS'>" + "<div class='stage-YS'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-PS'></div>"
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='PS'>" + "<div class='stage-PS'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
-         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter + "'>" + "<div class='stage-DL'></div>"
+         outHTML += "<div class='stats-stage-btn' id='stats-stage-btn" + stageTintDivCounter
+            + "' name='" + matchup + "' value='DL'>" + "<div class='stage-DL'></div>"
             + "<div id='stage-tint-div" + stageTintDivCounter++ + "' "
             + "class='stage-tint-div hidden'></div>" + "</div>";
          outHTML += "</div>";
@@ -484,6 +518,11 @@ function renderStats(statsObject){
          chart = addStatsChart(chart, sc_FoD);
          chart = addStatsChart(chart, sc_DL);
 
+         var charts = [];
+         charts.push(chart, sc_BF, sc_FD, sc_FoD, sc_YS, sc_PS, sc_DL);
+
+         statsCharts[matchup] = charts;
+
          outHTML += getTableStringFromStatsChart(chart);
          outHTML += "</div>";
       }
@@ -491,6 +530,7 @@ function renderStats(statsObject){
 
    statsDiv.insertAdjacentHTML('beforeend', outHTML);
    addStageTintDivToggles();
+   console.log("statsCharts: ", statsCharts);
 }
 
 function main(){
