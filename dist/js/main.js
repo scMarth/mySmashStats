@@ -39,19 +39,18 @@ $(window).on("load", function(){
 });
 
 function getMedalImgString(medalStr){
-   var output = "";
 
    switch (medalStr){
-      case "bronze": output += "<div class='medal-bronze'></div>"; break;
-      case "silver": output += "<div class='medal-silver'></div>"; break;
-      case "gold": output += "<div class='medal-gold'></div>"; break;
-      case "platinum": output += "<div class='medal-platinum'></div>"; break;
-      case "master": output += "<div class='medal-master'></div>"; break;
-      case "grandsmasher": output += "<div class='medal-grandsmasher'></div>"; break;
-      case "unranked": output += "<div class='medal-unranked'></div>"; break;
+      case "bronze": return "<div class='medal-bronze'></div>";
+      case "silver": return "<div class='medal-silver'></div>";
+      case "gold": return "<div class='medal-gold'></div>";
+      case "platinum": return "<div class='medal-platinum'></div>";
+      case "master": return "<div class='medal-master'></div>";
+      case "grandsmasher": return "<div class='medal-grandsmasher'></div>";
+      case "unranked": return "<div class='medal-unranked'></div>";
+      default: return "";
    }
 
-   return output;
 }
 
 function getStageImgString(stageStr){
@@ -114,7 +113,7 @@ function getCharImgStringFromArray(dataArray){
 
 }
 
-function getUserDetails(player){
+function getUserDetailsHTML(player){
    output = "";
 
    output += "<span class='username'>" + player.username + "</span>" + "<br>";
@@ -132,7 +131,7 @@ function getUserDetails(player){
    return output;
 }
 
-function renderHTML(data){
+function renderMatchData(data){
    var htmlString = "";
 
    //console.log(data);
@@ -147,17 +146,17 @@ function renderHTML(data){
 
          htmlString += "<div class='opponent-info-div'>";
          if (data[i].winner.player == "1"){ // you won
-            htmlString += getUserDetails(data[i].winner);
+            htmlString += getUserDetailsHTML(data[i].winner);
          }else{
-            htmlString += getUserDetails(data[i].loser);
+            htmlString += getUserDetailsHTML(data[i].loser);
          }
          htmlString += "</div>";
 
          htmlString += "<div class='opponent-info-div'>";
          if (data[i].winner.player == "1"){
-            htmlString += getUserDetails(data[i].loser);  
+            htmlString += getUserDetailsHTML(data[i].loser);  
          }else{
-            htmlString += getUserDetails(data[i].winner);
+            htmlString += getUserDetailsHTML(data[i].winner);
          }
          htmlString += "</div>";
          htmlString += "</div>";
@@ -165,11 +164,11 @@ function renderHTML(data){
          htmlString += "<div class='opponents-container'>";
 
          htmlString += "<div class='opponent-info-div'>";
-         htmlString += getUserDetails(data[i].opponent1);
+         htmlString += getUserDetailsHTML(data[i].opponent1);
          htmlString += "</div>";
 
          htmlString += "<div class='opponent-info-div'>";
-         htmlString += getUserDetails(data[i].opponent2);
+         htmlString += getUserDetailsHTML(data[i].opponent2);
          htmlString += "</div>";
 
          htmlString += "</div>";
@@ -291,7 +290,6 @@ function getStatsFromJSON(data){
    }
 }
 
-
 function isInt(n){
    return n % 1 == 0;
 }
@@ -307,19 +305,16 @@ function capitalizeString(str){
 }
 
 function getSmallMedalImgString(medalStr){
-   var output = "";
-
    switch (medalStr){
-      case "bronze": output += "<div class='medal-bronze-small'></div>"; break;
-      case "silver": output += "<div class='medal-silver-small'></div>"; break;
-      case "gold": output += "<div class='medal-gold-small'></div>"; break;
-      case "platinum": output += "<div class='medal-platinum-small'></div>"; break;
-      case "master": output += "<div class='medal-master-small'></div>"; break;
-      case "grandsmasher": output += "<div class='medal-grandsmasher-small'></div>"; break;
-      case "unranked": output += "<div class='medal-unranked-small'></div>"; break;
+      case "bronze": return "<div class='medal-bronze-small'></div>";
+      case "silver": return "<div class='medal-silver-small'></div>";
+      case "gold": return "<div class='medal-gold-small'></div>";
+      case "platinum": return "<div class='medal-platinum-small'></div>";
+      case "master": return "<div class='medal-master-small'></div>";
+      case "grandsmasher": return "<div class='medal-grandsmasher-small'></div>";
+      case "unranked": return "<div class='medal-unranked-small'></div>";
+      default: return "";
    }
-
-   return output;
 }
 
 
@@ -366,18 +361,15 @@ function getTableStringFromStatsChart(chart){
 
 
 function getLeftCharacterFromMatchup(matchupStr){
-   var tokens = matchupStr.split(" ");
+   var tokens = matchupStr.split(" vs. ");
+   console.log("getLeftCharacterFromMatchup: ", tokens[0]);
    return tokens[0];
 }
 
 function getRightCharacterFromMatchup(matchupStr){
-   var tokens = matchupStr.split(" ");
-   var ret = "";
-   for (i=2; i<tokens.length - 1; i++){
-      ret += tokens[i] + " ";
-   }
-   ret += tokens[tokens.length-1];
-   return ret;
+   var tokens = matchupStr.split(" vs. ");
+   console.log("getRightCharacterFromMatchup: ", tokens[1]);
+   return tokens[1];
 }
 
 
@@ -410,10 +402,6 @@ function addStageTintDivToggles(){
          var totals_charts = statsCharts[matchup][0];
          var ind = getStatsChartsIndexForStage(stage);
          var stage_chart = statsCharts[matchup][ind]
-         console.log("matchup ", matchup);
-         console.log("stage ", stage);
-         console.log("totals ", totals_charts);
-         console.log("stage chart ", stage_chart);
          var matchupStatsDiv = $(".matchup-stats-div").filter("[value|='"+matchup+"']")[0];
 
          if (stageTintDivStates[num] == 1){
@@ -441,8 +429,6 @@ function addStageTintDivToggles(){
       });
    }
 }
-
-
 
 function renderStats(statsObject){
    var outHTML = "";
@@ -532,7 +518,7 @@ function renderStats(statsObject){
 }
 
 function main(){
-   renderHTML(HistoryJSON);
+   renderMatchData(HistoryJSON);
    getStatsFromJSON(HistoryJSON);
    console.log("this is the statsObject:", statsObject);
    renderStats(statsObject);
