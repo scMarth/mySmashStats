@@ -372,8 +372,6 @@ function getRightCharacterFromMatchup(matchupStr){
    return tokens[1];
 }
 
-
-
 function getStatsChartsIndexForStage(stage){
    switch (stage){
       case "BF": return 1;

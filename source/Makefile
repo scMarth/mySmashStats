@@ -20,6 +20,7 @@ secondary:
 	$(CC) -o regex_example regex_example.cpp
 	$(CC) -o regex_match_example regex_match_example.cpp
 	$(CC) -o concat concat.cpp
+	$(CC) -o combineJSONMatches combineJSONMatches.cpp
 	gcc -o removecrlf removecrlf.c
 
 testregex:
