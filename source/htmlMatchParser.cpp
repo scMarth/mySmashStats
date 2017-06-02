@@ -1,7 +1,3 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <sstream>
 // ./source
 #include "errorStuff.h"
 #include "regexStuff.h"
@@ -11,7 +7,6 @@
 
 using namespace std;
 using namespace rapidjson;
-
 
 // Global Var
 StringBuffer s;
@@ -74,7 +69,6 @@ return   1      if match-win is found
 
 */
 int getMatchResult(string line){
-   //cout << "called getMatchResult on line: " << line << endl;
 
    // search for loss class
    smatch m1;
@@ -108,7 +102,6 @@ string getDate(string line){
    return getSubstringThatMatches("[^\']+", date);
 }
 
-
 int getOpponentUserID(string line){
    string userID_str = getSubstringThatMatches("user_id_[0-9]+", line);
    if (userID_str == "") return -1;
@@ -120,7 +113,6 @@ int getOpponentUserID(string line){
 
    return user_id;
 }
-
 
 string getOpponentUsername(string line){
    string username_str = getSubstringThatMatches("smashladder(.)*>(.*)</a>", line);
@@ -135,17 +127,11 @@ string getOpponentMedal(ifstream &infile){
    return getSubstringThatMatches("[^(\'>)]+", line);
 }
 
-
 string getOpponentDivision(ifstream &infile){
    string line = scrollUntilFind("<div(.)*class(.)*=(.)*\'(.)*division(.)*", infile);
-   //cout << "getOpponentDivision: " << line << endl << endl;
    line = scrollAndAppendUntilFind("<div(.)*class(.)*=(.)*\'division(.)*\'(.)*>(.)*</div>", infile, line);
-   //cout << "2 getOpponentDivision: " << line << endl << endl;
    line = getSubstringThatMatches(">(.)*</", line);
-   //cout << "3 getOpponentDivision: " << line << endl << endl;
-   //line = getSubstringThatMatches("[^> ]+[^ </]", line);
    line = getSubstringThatMatches("[^ <>/]+", line);
-   //cout << "4 getOpponentDivision: " << line << endl << endl;
    return line;
 }
 
@@ -170,18 +156,15 @@ int getOpponentInfo(ifstream &infile, string opponent_num){
    line = scrollAndAppendUntilFind("<div(.)*class=\'opponent[^s](.)*><a(.)*class=(.)*</a>", infile, line);
 
    if (line.find("opponent_lost") != string::npos){
-      //cout << "--> case one\n";
       this_person_won = 0;
       not_friendlies = 1;
    }else if (line.find("opponent_won") != string::npos){
-      //cout << "--> case two\n";
       this_person_won = 1;
       not_friendlies = 1;
    }
 
    cout << endl;
    if (not_friendlies == 1){
-      //cout << "[RANKED MATCH]\n";
       if (this_person_won == 1){
          cout << "WINNER:\n";
          writer.Key("winner");
@@ -285,15 +268,12 @@ int getFeedbackSectionDiv(ifstream &infile){
       line += append;
 
       if (regex_search(line, m, expr)){
-         //cout << "case one in getFeedbackSectionDiv\n\n";
          return 1;
       }
       else if (regex_search(line, m, end_expr)){
-         //cout << "case two in getFeedbackSectionDiv\n\n";
          return 0;
       }
       else if (regex_search(line, m, end_expr2)){
-         //cout << "case three in getFeedbackSectionDiv\n\n";
          return 0;
       }
    }while(1);
@@ -322,7 +302,6 @@ string getFeedbackUsername(ifstream &infile, string initStr){
    line = getSubstringThatMatches(">[^>]+</a>", line);
    return getSubstringThatMatches("[^><]+[^<]", line);
 }
-
 
 /*
 return 1 if feedback is positive
@@ -377,7 +356,6 @@ void getPlayerFeedback(ifstream &infile){
          
          writer.EndArray();
 
-
          getline(infile, line);
          if (stringMatchesExpr("</div>(.)*", line)){
             writer.EndArray();
@@ -413,8 +391,6 @@ void getPlayerFeedback(ifstream &infile){
    }
 }
 
-
-
 /*
 
 return 1 if character was victorious
@@ -439,7 +415,6 @@ string getCharacterPlayed(string line){
    character = getSubstringThatMatches("[^\']+", character);
    return character;
 }
-
 
 string fixYoshis(string str){
    string s = getSubstringThatMatches("Yosh(.)*Story", str);
@@ -486,7 +461,6 @@ void getStagesPlayed(ifstream &infile){
       else die("getStagesPlayed: unknown expression");
    }
 }
-
 
 void getPlayerResult(ifstream &infile, string player_num){
    string line;
@@ -557,8 +531,6 @@ void getGamesFromFile(string filename){
          string nextline;
          getline(infile, nextline);
          line += nextline;
-
-
 
          // get the match ID
          int match_id = findMatchID(sm);
@@ -644,10 +616,7 @@ void getGamesFromFile(string filename){
             "========================================================="
             << endl << endl;
 
-            //cout << "signal 1" << endl;
-            //cout << s.GetString() << endl;
             writer.EndObject();
-            //cout << "signal 2" << endl;
          }else{
             writer.Key("match_type");
             writer.String("UNRANKED");
@@ -655,7 +624,6 @@ void getGamesFromFile(string filename){
             cout << "The match was NOT ranked.\n";
 
             string dateExpr = "https://www.smashladder.com/match/view/" + to_string(match_id);
-
 
             line = scrollUntilFind(dateExpr, infile);
             string line2;
@@ -690,25 +658,20 @@ void getGamesFromFile(string filename){
    }
 }
 
-
 int main(){
 
-   //writer.StartObject();
    writer.StartArray();
 
    getGamesFromFile("../html/updatedHistories/updatedHistory.html");
 
    writer.EndArray();
-   //writer.EndObject();
-
-   //cout << "JSON DATA:" << endl;
-   //cout << s.GetString() << endl;
 
    // Write JSON to file
    ofstream jsonDataFile;
-   //jsonDataFile.open("../json/match-history/hist.json");
-   jsonDataFile.open("../dist/js/history.js");
-   jsonDataFile << "var HistoryJSON = " << s.GetString() << endl;
+   jsonDataFile.open("../json/match-history/updated-hist.json");
+   //jsonDataFile.open("../dist/js/history.js");
+   //jsonDataFile << "var HistoryJSON = " << s.GetString() << endl;
+   jsonDataFile << s.GetString() << endl;
    jsonDataFile.close();
 
    return 0;

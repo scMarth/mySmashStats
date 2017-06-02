@@ -16,12 +16,21 @@ gethtml: errorStuff.h regexStuff.h
 	- rm ../html/updatedHistories/updatedHistory.html
 	- rename 's/temp/updatedHistory/' ../html/updatedHistories/temp.html 
 
-secondary:
+secondary: lookaheadparser.h
 	$(CC) -o regex_example regex_example.cpp
 	$(CC) -o regex_match_example regex_match_example.cpp
 	$(CC) -o concat concat.cpp
 	$(CC) -o combineJSONMatches combineJSONMatches.cpp
 	gcc -o removecrlf removecrlf.c
+
+update: lookaheadparser.h
+	[ ! -f ../json/match-history/all-hist.json ] && cp ../json/match-history/updated-hist.json ../json/match-history/all-hist.json
+	make gethtml
+	make go
+	$(CC) -o combineJSONMatches combineJSONMatches.cpp
+	./combineJSONMatches
+	echo "var HistoryJSON = " > ../dist/js/history.js
+	cat ../json/match-history/all-hist.json >> ../dist/js/history.js
 
 testregex:
 	$(CC) -o testRegex testRegexStuff.cpp

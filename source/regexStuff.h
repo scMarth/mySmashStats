@@ -39,8 +39,6 @@ string scrollAndAppendUntilFind(string regex_expr, ifstream &infile, string init
    return "";
 }
 
-
-
 /*
 
 return the substring of 'line' that matches the expression 'regex_expr'
