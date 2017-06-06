@@ -24,9 +24,9 @@ secondary: lookaheadparser.h
 	gcc -o removecrlf removecrlf.c
 
 update: lookaheadparser.h
-	[ ! -f ../json/match-history/all-hist.json ] && cp ../json/match-history/updated-hist.json ../json/match-history/all-hist.json
 	make gethtml
 	make go
+	- [ ! -f ../json/match-history/all-hist.json ] && cp ../json/match-history/updated-hist.json ../json/match-history/all-hist.json
 	$(CC) -o combineJSONMatches combineJSONMatches.cpp
 	./combineJSONMatches
 	echo "var HistoryJSON = " > ../dist/js/history.js

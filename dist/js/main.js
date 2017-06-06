@@ -16,7 +16,7 @@ matchesBtn.addEventListener("click", function(){
       matchesBtnState = 0;
       matchesBtn.innerHTML = "Show Matches";
    }
-   console.log(matchesBtnState);
+   //console.log(matchesBtnState);
 });
 
 // Show / Hide Stats Button
@@ -362,13 +362,13 @@ function getTableStringFromStatsChart(chart){
 
 function getLeftCharacterFromMatchup(matchupStr){
    var tokens = matchupStr.split(" vs. ");
-   console.log("getLeftCharacterFromMatchup: ", tokens[0]);
+   //console.log("getLeftCharacterFromMatchup: ", tokens[0]);
    return tokens[0];
 }
 
 function getRightCharacterFromMatchup(matchupStr){
    var tokens = matchupStr.split(" vs. ");
-   console.log("getRightCharacterFromMatchup: ", tokens[1]);
+   //console.log("getRightCharacterFromMatchup: ", tokens[1]);
    return tokens[1];
 }
 
@@ -435,7 +435,7 @@ function renderStats(statsObject){
       if (statsObject.hasOwnProperty(matchup)){
 
          outHTML += "<div class='matchup-stats-div' value='" + matchup + "'>";
-         console.log("matchup object:", statsObject[matchup]);
+         //console.log("matchup object:", statsObject[matchup]);
 
          outHTML += "<div class='matchup-stats-div-header'>"
             + getCharImgString(getLeftCharacterFromMatchup(matchup))
@@ -485,12 +485,12 @@ function renderStats(statsObject){
          populateStatsChart(statsObject[matchup].stages['FoD'], sc_FoD);
          populateStatsChart(statsObject[matchup].stages['DL'], sc_DL);
 
-         console.log("BF chart: ", sc_BF);
-         console.log("FD chart: ", sc_FD);
-         console.log("DL chart: ", sc_DL);
-         console.log("YS chart: ", sc_YS);
-         console.log("FoD chart: ", sc_FoD);
-         console.log("PS chart: ", sc_PS);
+         //console.log("BF chart: ", sc_BF);
+         //console.log("FD chart: ", sc_FD);
+         //console.log("DL chart: ", sc_DL);
+         //console.log("YS chart: ", sc_YS);
+         //console.log("FoD chart: ", sc_FoD);
+         //console.log("PS chart: ", sc_PS);
 
          // let chart be the sum of all the stage charts
          var chart = new statsChart();
@@ -512,12 +512,12 @@ function renderStats(statsObject){
 
    statsDiv.insertAdjacentHTML('beforeend', outHTML);
    addStageTintDivToggles();
-   console.log("statsCharts: ", statsCharts);
+   //console.log("statsCharts: ", statsCharts);
 }
 
 function main(){
    renderMatchData(HistoryJSON);
    getStatsFromJSON(HistoryJSON);
-   console.log("this is the statsObject:", statsObject);
+   //console.log("this is the statsObject:", statsObject);
    renderStats(statsObject);
 }
