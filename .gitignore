@@ -1,12 +1,9 @@
 # Exec
 /source/concat
-/source/htmlMatchParser
 /source/regex_example
 /source/regex_match_example
 /source/removecrlf
 /source/testRegex
-/source/getUpdatedHistoryHTML
-/source/combineJSONMatches
 
 # .o, .gch
 /source/*.o
