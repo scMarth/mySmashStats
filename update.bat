@@ -32,6 +32,4 @@ type "json\match-history\all-hist.json" >> "dist\js\history.js"
 
 call "dist\mySmashStats.html"
 
-
-
-PAUSE
+rem PAUSE
