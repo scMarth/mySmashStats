@@ -1,3 +1,4 @@
+#include <string>
 // ./source
 #include "errorStuff.h"
 #include "regexStuff.h"
@@ -7,6 +8,14 @@
 
 using namespace std;
 using namespace rapidjson;
+
+// implement to_string because it's not declared in MinGW:
+string to_string(int i){
+   stringstream ss;
+   ss << i;
+   return ss.str();
+}
+
 
 // Global Var
 StringBuffer s;
@@ -21,7 +30,7 @@ int findMatchID(smatch sm){
       int match_id = 0;
       stringstream convert(match_id_str);
       convert >> match_id;
-      
+
       return match_id;
    }
    return -1;
@@ -218,7 +227,7 @@ int getOpponentInfo(ifstream &infile, string opponent_num){
 
    string opponent_points = getOpponentPoints(infile);
    if (opponent_points == "") opponent_unranked = 1;
-   else{   
+   else{
       stringstream convert(opponent_points);
       convert >> opp_points_num;
    }
@@ -353,7 +362,7 @@ void getPlayerFeedback(ifstream &infile){
             cout << "down";
          }
          cout << endl;
-         
+
          writer.EndArray();
 
          getline(infile, line);
@@ -489,11 +498,11 @@ void getPlayerResult(ifstream &infile, string player_num){
       cout << character << " (";
       if (wasVictorious){
          writer.Int(1);
-         cout << "VICTORIOUS";  
+         cout << "VICTORIOUS";
       }else{
          writer.Int(0);
          cout << "DEFEATED";
-      } 
+      }
       cout << ")\n";
       writer.EndArray();
 
@@ -537,7 +546,7 @@ void getGamesFromFile(string filename){
          if (match_id == -1) die("Match ID wasn't found.\n");
          else cout << "The match id is: " << match_id << "\n";
 
-         writer.StartObject();         
+         writer.StartObject();
          writer.Key("match_id");
          writer.Int(match_id);
 
@@ -589,7 +598,7 @@ void getGamesFromFile(string filename){
             cout << "Date: " << date << endl;
 
             writer.Key("date");
-            writer.String(date.c_str());            
+            writer.String(date.c_str());
 
             cout << "\n[RANKED MATCH]\n";
 
@@ -612,7 +621,7 @@ void getGamesFromFile(string filename){
             getPlayerResult(infile, "2");
 
 
-            cout << endl << 
+            cout << endl <<
             "========================================================="
             << endl << endl;
 
@@ -648,7 +657,7 @@ void getGamesFromFile(string filename){
             // get player feedback
             getPlayerFeedback(infile);
 
-            cout << endl << 
+            cout << endl <<
             "========================================================="
             << endl << endl;
 

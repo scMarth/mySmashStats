@@ -4,8 +4,8 @@
 #include <sstream>
 
 // lib curl
-#include <curl/curl.h>
-#include <curl/easy.h>
+#include "../include/curl/curl.h"
+#include "../include/curl/easy.h"
 
 #include "errorStuff.h"
 #include "regexStuff.h"
